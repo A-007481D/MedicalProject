@@ -102,7 +102,6 @@ public class Patient {
                 .max(Comparator.comparing(VitalSign::getRecordedAt));
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

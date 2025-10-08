@@ -109,7 +109,6 @@ public class Consultation {
         status = ConsultationStatus.EN_ATTENTE_AVIS_SPECIALIST;
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

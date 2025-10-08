@@ -17,6 +17,5 @@ public class Admin extends User {
     }
 
     public void manageStaff() {
-        // Implementation for staff management logic
     }
 }

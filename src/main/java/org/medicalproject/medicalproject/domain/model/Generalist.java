@@ -8,10 +8,8 @@ import jakarta.persistence.Entity;
 public class Generalist extends Doctor {
 
     public void createConsultation() {
-        // domain logic will be in services; placeholder for intent
     }
 
     public void requestExpertise() {
-        // domain logic will be in services; placeholder for intent
     }
 }

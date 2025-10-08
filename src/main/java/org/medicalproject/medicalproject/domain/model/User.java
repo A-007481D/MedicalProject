@@ -29,7 +29,6 @@ public abstract class User {
     @Column(nullable = false, length = 100)
     private String lastName;
 
-    // BCrypt hash, typically 60 chars
     @NotNull
     @Size(min = 60, max = 60)
     @Column(nullable = false, length = 60)
