@@ -1,0 +1,252 @@
+classDiagram
+    direction LR
+
+%% ===== ENUMS =====
+    class Role { <<enumeration>> ADMIN NURSE GENERALIST SPECIALIST }
+    class Gender { <<enumeration>> MALE FEMALE }
+    class ConsultationStatus { <<enumeration>> EN_ATTENTE
+    EN_COURS
+    EN_ATTENTE_AVIS_SPECIALISTE
+    TERMINEE
+    }
+    class ExpertiseStatus { <<enumeration>> EN_ATTENTE TERMINEE }
+    class PriorityLevel { <<enumeration>> URGENTE NORMALE NON_URGENTE }
+    class TimeslotStatus { <<enumeration>> AVAILABLE RESERVED PAST ARCHIVED }
+    class ActeType { <<enumeration>> RADIOGRAPHY
+    ULTRASOUND
+    IRM
+    ECG
+    DERMATOLOGY
+    FONDOCULAR
+    BLOOD_TEST
+    URINE_TEST }
+
+%% ====== AUTH / USER ======
+    class User {
+        <<abstract>>
+        +Long id
+        +String firstName
+        -String lastName
+        +String password
+        +String email
+        +Role role
+        +boolean active
+        +LocalDateTime createdAt
+        +LocalDateTime lastLoginAt
+        +login()
+        +logout()
+    }
+
+    class Admin {
+        +Long id
+        +String fullName
+        +manageStaff()
+    }
+
+    class Nurse {
+        +Long id
+        +String fullName
+        +String phone
+        +recordPatientArrival(Patient p, VitalSign v)
+        +viewTodaysPatients()
+    }
+
+    class Doctor {
+        <<abstract>>
+        +Long id
+        +String fullName
+        +String phone
+        +String specialty
+        +configureProfile()
+    }
+
+    class Generalist {
+        +createConsultation()
+        +requestExpertise()
+    }
+
+    class Specialist {
+        +double tarif
+        +int slotDurationMinutes
+        +configureAvailability()
+        +respondToExpertise()
+    }
+
+    User "1" --> "0..1" Admin : one-to-one
+    User "1" --> "0..1" Nurse : one-to-one
+    User "1" --> "0..1" Doctor : one-to-one
+    Doctor <|-- Generalist
+    Doctor <|-- Specialist
+
+%% ====== PATIENT & VITALS ======
+    class Patient {
+        +Long id
+        +String cin
+        +String firstName
+        +String lastName
+        +LocalDate birthDate
+        +Gender gender
+        +String phone
+        +String address
+        +String cnss  # numero securite sociale
+        +String mutuelle
+        +String antecedents
+        +String allergies
+        +String currentTreatments
+        +LocalDateTime registeredAt
+        +createdBy (Nurse)
+        +addVitalSign(VitalSign v)
+        +getLatestVitals()
+    }
+
+    class VitalSign {
+        +Long id
+        +double temperature
+        +int pulse
+        +String bloodPressure   # like "120/80"
+        +int respiratoryRate
+        +double weight
+        +double height
+        +LocalDateTime recordedAt
+        +recordedBy (Nurse)
+    }
+
+    Patient "1" --> "*" VitalSign : has
+
+%% ====== QUEUE (waiting list) ======
+    class QueueEntry {
+        +Long id
+        +Patient patient
+        +LocalDateTime arrivalTime
+        +String status   # WAITING, IN_CONSULT, DONE
+        +createdBy (Nurse)
+        +enqueue()
+        +dequeue()
+    }
+
+    Patient "1" --> "*" QueueEntry : queued
+
+%% ====== CONSULTATION / EXPERTISE ======
+    class Consultation {
+        +Long id
+        +Patient patient
+        +Generalist generalist
+        +LocalDateTime createdAt
+        +LocalDateTime closedAt
+        +ConsultationStatus status
+        +String motif
+        +String observations
+        +String clinicalExam
+        +double baseCost  # default 150.0
+        +List<Acte> actes
+        +ExpertiseRequest expertiseRequest
+        +List<Prescription> prescriptions
+        +create()
+        +close()
+        +calculateTotalCost()
+    }
+
+    class ExpertiseRequest {
+        +Long id
+        +Consultation consultation
+        +Specialist specialistAssigned
+        +String specializationNeeded
+        +String question
+        +PriorityLevel priority
+        +LocalDateTime requestedAt
+        +LocalDateTime scheduledSlotStart
+        +LocalDateTime scheduledSlotEnd
+        +ExpertiseStatus status
+        +String expertOpinion
+        +String recommendations
+        +createRequest()
+        +assignSpecialist()
+        +markAsDone()
+    }
+
+    Consultation "1" --> "0..1" ExpertiseRequest : mayHave
+    ExpertiseRequest "0..1" --> "1" Specialist : assignedTo
+
+%% ====== SLOTS & AVAILABILITY ======
+    class SpecialistProfile {
+        +Long id
+        +Specialist specialist
+        +double tarif
+        +int slotDurationMinutes
+        +List<Timeslot> timeslots
+        +configureTarif()
+    }
+
+    class Timeslot {
+        +Long id
+        +LocalDateTime start
+        +LocalDateTime end
+        +TimeslotStatus status
+        +reserve()
+        +free()
+    }
+
+    Specialist "1" --> "1" SpecialistProfile : has
+    SpecialistProfile "1" --> "*" Timeslot : generates
+
+%% ====== ACTES TECHNIQUES, PRESCRIPTION, REPORTS ======
+    class Acte {
+        +Long id
+        +ActeType type
+        +String description
+        +double price
+    }
+
+    class Prescription {
+        +Long id
+        +Consultation consultation
+        +LocalDateTime issuedAt
+        +List<Medication> medications
+        +String instructions
+    }
+
+    class Medication {
+        +Long id
+        +String name
+        +String form
+        +String dosageInfo
+    }
+
+    Prescription "*" --> "*" Medication : contains
+    Consultation "1" --> "*" Acte : includes
+    Consultation "1" --> "*" Prescription : issues
+
+    class Report {
+        +Long id
+        +Patient patient
+        +Consultation consultation  # optional
+        +String filename
+        +String contentType
+        +long size
+        +String storagePath
+        +LocalDateTime uploadedAt
+        +uploadedBy (User)
+    }
+
+    Patient "1" --> "*" Report : has
+
+    class Notification {
+        +Long id
+        +User recipient
+        +String message
+        +boolean read
+        +LocalDateTime createdAt
+        +send()
+    }
+
+    class AuditLog {
+        +Long id
+        +String actor
+        +String action
+        +String details
+        +LocalDateTime timestamp
+        +record()
+    }
+
+    User "1" --> "*" Notification : receives
+    User "1" --> "*" AuditLog : performs
