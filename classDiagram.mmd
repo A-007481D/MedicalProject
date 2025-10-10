@@ -250,3 +250,11 @@ classDiagram
 
     User "1" --> "*" Notification : receives
     User "1" --> "*" AuditLog : performs
+
+    User -- Role
+    Admin -- Role
+    Patient -- Gender
+    Consultation -- ConsultationStatus
+    Acte -- ActeType
+
+
