@@ -5,12 +5,30 @@
              version="3.2">
   <persistence-unit name="medicalPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-    <!-- Classes are auto-discovered via classpath scanning. Uncomment below if explicit listing is required. -->
-    <!--
-    <class>org.medicalproject.medicalproject.domain.model.Patient</class>
-    -->
 
-    <properties>
+      <class>org.medicalproject.medicalproject.domain.model.User</class>
+      <class>org.medicalproject.medicalproject.domain.model.Admin</class>
+      <class>org.medicalproject.medicalproject.domain.model.Nurse</class>
+      <class>org.medicalproject.medicalproject.domain.model.Doctor</class>
+      <class>org.medicalproject.medicalproject.domain.model.Generalist</class>
+      <class>org.medicalproject.medicalproject.domain.model.Specialist</class>
+      <class>org.medicalproject.medicalproject.domain.model.Patient</class>
+      <class>org.medicalproject.medicalproject.domain.model.VitalSign</class>
+      <class>org.medicalproject.medicalproject.domain.model.QueueEntry</class>
+      <class>org.medicalproject.medicalproject.domain.model.Consultation</class>
+      <class>org.medicalproject.medicalproject.domain.model.ExpertiseRequest</class>
+      <class>org.medicalproject.medicalproject.domain.model.SpecialistProfile</class>
+      <class>org.medicalproject.medicalproject.domain.model.Timeslot</class>
+      <class>org.medicalproject.medicalproject.domain.model.Acte</class>
+      <class>org.medicalproject.medicalproject.domain.model.Prescription</class>
+      <class>org.medicalproject.medicalproject.domain.model.Medication</class>
+      <class>org.medicalproject.medicalproject.domain.model.Report</class>
+      <class>org.medicalproject.medicalproject.domain.model.Notification</class>
+      <class>org.medicalproject.medicalproject.domain.model.AuditLog</class>
+
+
+
+      <properties>
       <!-- JDBC configuration for development convenience -->
       <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
       <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/medical_project"/>
