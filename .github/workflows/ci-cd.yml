@@ -1,0 +1,46 @@
+name: CI/CD for Jakarta Medical Project
+
+on:
+  push:
+    branches: [ "main", "develop", 'feature/**' ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build and run tests
+        run: mvn clean verify
+
+      - name: Package WAR
+        run: mvn package -DskipTests
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: medicalproject-war
+          path: target/*.war
+
+      - name: Deploy to Tomcat
+        if: github.ref == 'refs/heads/main'
+        run: |
+          curl -T target/*.war "http://${{ secrets.TOMCAT_USER }}:${{ secrets.TOMCAT_PASS }}@${{ secrets.TOMCAT_HOST }}/manager/text/deploy?path=/medicalapp&update=true"
