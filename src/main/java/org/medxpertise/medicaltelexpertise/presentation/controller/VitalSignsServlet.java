@@ -71,7 +71,11 @@ public class VitalSignsServlet extends HttpServlet {
             return;
         }
         
-        Nurse nurse = (Nurse) session.getAttribute("user");
+        User user = (User) session.getAttribute("user");
+        if (user.getRole() != Role.NURSE) {
+            resp.sendRedirect(req.getContextPath() + "/login?error=Access denied");
+            return;
+        }
         
         try {
             Long patientId = Long.parseLong(req.getParameter("patientId"));
@@ -90,11 +94,11 @@ public class VitalSignsServlet extends HttpServlet {
             // Add vital signs
             VitalSign vitalSign = patientService.addVitalSigns(
                 patientId, temperature, pulse, bloodPressure,
-                respiratoryRate, weight, height, nurse.getId()
+                respiratoryRate, weight, height, user.getId()
             );
             
             // Add patient to queue
-            queueService.addToQueue(patientId, nurse.getId());
+            queueService.addToQueue(patientId, user.getId());
             
             resp.sendRedirect(req.getContextPath() + "/dashboard/nurse?success=Patient registered and added to queue");
             

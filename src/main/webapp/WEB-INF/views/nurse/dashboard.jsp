@@ -1,3 +1,6 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
 <%
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -299,7 +302,7 @@
                                     <td>${entry.patient.firstName} ${entry.patient.lastName}</td>
                                     <td>${entry.patient.cin}</td>
                                     <td>
-                                        <fmt:formatDate value="${entry.arrivalTime}" pattern="HH:mm" type="time"/>
+                                        ${entry.arrivalTime.format(timeFormatter)}
                                     </td>
                                     <td><span class="badge badge-waiting">WAITING</span></td>
                                 </tr>
