@@ -37,12 +37,10 @@ public class PromoteUserServlet extends HttpServlet {
         try {
             newRole = Role.valueOf(newRoleStr);
         } catch (IllegalArgumentException e) {
-            // submitted role is not a valid enum
             resp.sendRedirect(req.getContextPath() + "/dashboard/admin?error=invalidRole");
             return;
         }
 
-        // promote user
         adminService.changeUserRole(userId, newRole);
 
         resp.sendRedirect(req.getContextPath() + "/dashboard/admin?success=roleChanged");

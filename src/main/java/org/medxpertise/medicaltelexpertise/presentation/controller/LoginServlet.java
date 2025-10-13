@@ -42,7 +42,13 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = req.getSession();
             session.setAttribute("user", user);
 
+            if (user.getRole() == null) {
+                resp.sendRedirect(req.getContextPath() + "/waiting");
+                return;
+            }
+
             switch (user.getRole()) {
+                case BASE -> resp.sendRedirect(req.getContextPath() + "/waiting");
                 case ADMIN -> resp.sendRedirect(req.getContextPath() + "/dashboard/admin");
                 case NURSE -> resp.sendRedirect(req.getContextPath() + "/dashboard/nurse");
                 case GENERALIST -> resp.sendRedirect(req.getContextPath() + "/dashboard/generalist");

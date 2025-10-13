@@ -21,14 +21,22 @@
             <td>${user.id}</td>
             <td>${user.username}</td>
             <td>${user.email}</td>
-            <td>${user.role}</td>
+            <td>
+                <c:choose>
+                    <c:when test="${empty user.role}">No Role</c:when>
+                    <c:when test="${user.role.name() == 'BASE'}">
+                        <span style="color: #f39c12; font-weight: bold;">⏳ Awaiting Assignment</span>
+                    </c:when>
+                    <c:otherwise>${user.role}</c:otherwise>
+                </c:choose>
+            </td>
             <td>
                 <form method="post" action="${pageContext.request.contextPath}/admin/promote">
                     <input type="hidden" name="userId" value="${user.id}" />
                     <select name="role" required>
-                        <option value="" disabled ${empty user.role ? 'selected' : ''}>-- Select Role --</option>
+                        <option value="" disabled ${empty user.role || user.role.name() == 'BASE' ? 'selected' : ''}>-- Select Role --</option>
                         <c:forEach var="r" items="${['ADMIN','GENERALIST','SPECIALIST','NURSE']}">
-                            <option value="${r}" ${user.role.name() == r ? 'selected' : ''}>${r}</option>
+                            <option value="${r}" ${not empty user.role && user.role.name() == r ? 'selected' : ''}>${r}</option>
                         </c:forEach>
                     </select>
                     <button type="submit">Change</button>
