@@ -1,94 +1,135 @@
 package org.medxpertise.medicaltelexpertise.infrastructure.repository;
 
-
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import org.medxpertise.medicaltelexpertise.domain.model.QueueEntry;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.QueueStatus;
 import org.medxpertise.medicaltelexpertise.domain.repository.QueueEntryRepository;
+import org.medxpertise.medicaltelexpertise.infrastructure.config.JpaUtil;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@ApplicationScoped
 public class QueueEntryRepositoryJpa implements QueueEntryRepository {
 
-    @PersistenceContext(unitName = "medicalPU")
-    private EntityManager entityManager;
+    private EntityManager getEntityManager() {
+        return JpaUtil.getEntityManager();
+    }
 
     @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
     public Optional<QueueEntry> findById(Long id) {
-        return Optional.ofNullable(entityManager.find(QueueEntry.class, id));
+        EntityManager em = getEntityManager();
+        try {
+            return Optional.ofNullable(em.find(QueueEntry.class, id));
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
     public List<QueueEntry> findAll() {
-        return entityManager.createQuery(
-                        "SELECT q FROM QueueEntry q ORDER BY q.arrivalTime",
-                        QueueEntry.class)
-                .getResultList();
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                            "SELECT q FROM QueueEntry q ORDER BY q.arrivalTime",
+                            QueueEntry.class)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    @Transactional
     public QueueEntry save(QueueEntry queueEntry) {
-        if (queueEntry.getId() == null) {
-            entityManager.persist(queueEntry);
-            return queueEntry;
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            QueueEntry result;
+            if (queueEntry.getId() == null) {
+                em.persist(queueEntry);
+                result = queueEntry;
+            } else {
+                result = em.merge(queueEntry);
+            }
+            em.getTransaction().commit();
+            return result;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
         }
-        return entityManager.merge(queueEntry);
     }
 
     @Override
-    @Transactional
     public void deleteById(Long id) {
-        QueueEntry managed = entityManager.find(QueueEntry.class, id);
-        if (managed != null) {
-            entityManager.remove(managed);
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            QueueEntry managed = em.find(QueueEntry.class, id);
+            if (managed != null) {
+                em.remove(managed);
+            }
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
         }
     }
 
     @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
     public List<QueueEntry> findActiveQueue() {
-        return entityManager.createQuery(
-                        "SELECT q FROM QueueEntry q WHERE q.status <> :done ORDER BY q.arrivalTime",
-                        QueueEntry.class)
-                .setParameter("done", QueueStatus.DONE)
-                .getResultList();
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                            "SELECT q FROM QueueEntry q WHERE q.status <> :done ORDER BY q.arrivalTime",
+                            QueueEntry.class)
+                    .setParameter("done", QueueStatus.DONE)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
     public List<QueueEntry> findByPatientId(Long patientId) {
-        return entityManager.createQuery(
-                        "SELECT q FROM QueueEntry q WHERE q.patient.id = :patientId ORDER BY q.arrivalTime DESC",
-                        QueueEntry.class)
-                .setParameter("patientId", patientId)
-                .getResultList();
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                            "SELECT q FROM QueueEntry q WHERE q.patient.id = :patientId ORDER BY q.arrivalTime DESC",
+                            QueueEntry.class)
+                    .setParameter("patientId", patientId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
     public Optional<QueueEntry> findCurrentForPatient(Long patientId, List<QueueStatus> activeStatuses) {
-        List<QueueStatus> statuses = (activeStatuses == null || activeStatuses.isEmpty())
-                ? List.of(QueueStatus.WAITING, QueueStatus.IN_PROGRESS)
-                : activeStatuses;
+        EntityManager em = getEntityManager();
+        try {
+            List<QueueStatus> statuses = (activeStatuses == null || activeStatuses.isEmpty())
+                    ? List.of(QueueStatus.WAITING, QueueStatus.IN_PROGRESS)
+                    : activeStatuses;
 
-        return entityManager.createQuery(
-                        "SELECT q FROM QueueEntry q " +
-                                "WHERE q.patient.id = :patientId AND q.status IN :statuses " +
-                                "ORDER BY q.arrivalTime DESC",
-                        QueueEntry.class)
-                .setParameter("patientId", patientId)
-                .setParameter("statuses", statuses)
-                .setMaxResults(1)
-                .getResultStream()
-                .findFirst();
+            return em.createQuery(
+                            "SELECT q FROM QueueEntry q " +
+                                    "WHERE q.patient.id = :patientId AND q.status IN :statuses " +
+                                    "ORDER BY q.arrivalTime DESC",
+                            QueueEntry.class)
+                    .setParameter("patientId", patientId)
+                    .setParameter("statuses", statuses)
+                    .setMaxResults(1)
+                    .getResultStream()
+                    .findFirst();
+        } finally {
+            em.close();
+        }
     }
 }

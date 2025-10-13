@@ -27,12 +27,10 @@ public class PromoteUserServlet extends HttpServlet {
         Long userId = Long.parseLong(req.getParameter("userId"));
         String newRoleStr = req.getParameter("role");
 
-        // Validate role
         if (newRoleStr == null || newRoleStr.isBlank()) {
             resp.sendRedirect(req.getContextPath() + "/dashboard/admin?error=invalidRole");
             return;
         }
-
         Role newRole;
         try {
             newRole = Role.valueOf(newRoleStr);
@@ -40,9 +38,7 @@ public class PromoteUserServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/dashboard/admin?error=invalidRole");
             return;
         }
-
         adminService.changeUserRole(userId, newRole);
-
         resp.sendRedirect(req.getContextPath() + "/dashboard/admin?success=roleChanged");
     }
 }
