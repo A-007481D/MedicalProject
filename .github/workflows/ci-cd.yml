@@ -40,7 +40,23 @@ jobs:
           name: medicalproject-war
           path: target/*.war
 
-      - name: Deploy to Tomcat
+      - name: Deploy to Tomcat via SSH
         if: github.ref == 'refs/heads/main'
-        run: |
-          curl -T target/*.war "http://${{ secrets.TOMCAT_USER }}:${{ secrets.TOMCAT_PASS }}@${{ secrets.TOMCAT_HOST }}/manager/text/deploy?path=/medicalapp&update=true"
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.TOMCAT_SSH_HOST }}
+          username: ${{ secrets.TOMCAT_SSH_USER }}
+          key: ${{ secrets.TOMCAT_SSH_KEY }}
+          script: |
+            echo "Uploading WAR..."
+            scp target/*.war ${{ secrets.TOMCAT_SSH_USER }}@${{ secrets.TOMCAT_SSH_HOST }}:/tmp/medicalapp.war
+            echo "Moving WAR to Tomcat webapps..."
+            mv /tmp/medicalapp.war ${{ secrets.TOMCAT_APP_PATH }}/medicalapp.war
+            echo "Restarting Tomcat..."
+            systemctl restart tomcat
+
+
+#      - name: Deploy to Tomcat
+#        if: github.ref == 'refs/heads/main'
+#        run: |
+#          curl -T target/*.war "http://${{ secrets.TOMCAT_USER }}:${{ secrets.TOMCAT_PASS }}@${{ secrets.TOMCAT_HOST }}/manager/text/deploy?path=/medicalapp&update=true"
