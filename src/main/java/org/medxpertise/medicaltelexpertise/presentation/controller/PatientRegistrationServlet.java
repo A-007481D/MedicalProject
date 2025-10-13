@@ -60,8 +60,14 @@ public class PatientRegistrationServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-        
-        Nurse nurse = (Nurse) session.getAttribute("user");
+
+        User user = (User) session.getAttribute("user");
+        if (user.getRole() != Role.NURSE) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        Long nurseId = user.getId();
         
         try {
             String action = req.getParameter("action");
@@ -100,7 +106,7 @@ public class PatientRegistrationServlet extends HttpServlet {
                 Patient patient = patientService.registerNewPatient(
                     cin, firstName, lastName, birthDate, gender,
                     phone, address, ssn, mutuelle, antecedents,
-                    allergies, currentTreatments, nurse.getId()
+                    allergies, currentTreatments, nurseId
                 );
                 
                 resp.sendRedirect(req.getContextPath() + "/nurse/vital-signs?patientId=" + patient.getId());
@@ -118,10 +124,10 @@ public class PatientRegistrationServlet extends HttpServlet {
                 
                 VitalSign vitalSign = patientService.addVitalSigns(
                     patientId, temperature, pulse, bloodPressure,
-                    respiratoryRate, weight, height, nurse.getId()
+                    respiratoryRate, weight, height, nurseId
                 );
                 
-                queueService.addToQueue(patientId, nurse.getId());
+                queueService.addToQueue(patientId, nurseId);
                 
                 resp.sendRedirect(req.getContextPath() + "/dashboard/nurse?success=Patient added to queue");
             }
