@@ -1,63 +1,98 @@
 package org.medxpertise.medicaltelexpertise.infrastructure.repository;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import org.medxpertise.medicaltelexpertise.domain.model.Nurse;
 import org.medxpertise.medicaltelexpertise.domain.repository.NurseRepository;
+import org.medxpertise.medicaltelexpertise.infrastructure.config.JpaUtil;
 
 import java.util.List;
 import java.util.Optional;
 
-@ApplicationScoped
 public class NurseRepositoryJpa implements NurseRepository {
 
-    @PersistenceContext(unitName = "medicalPU")
-    private EntityManager entityManager;
+    private EntityManager getEntityManager() {
+        return JpaUtil.getEntityManager();
+    }
 
     @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
     public Optional<Nurse> findById(Long id) {
-        return Optional.ofNullable(entityManager.find(Nurse.class, id));
+        EntityManager em = getEntityManager();
+        try {
+            return Optional.ofNullable(em.find(Nurse.class, id));
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
     public List<Nurse> findAll() {
-        return entityManager.createQuery(
-                        "SELECT n FROM Nurse n ORDER BY n.lastName, n.firstName",
-                        Nurse.class)
-                .getResultList();
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                            "SELECT n FROM Nurse n ORDER BY n.lastName, n.firstName",
+                            Nurse.class)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    @Transactional
     public Nurse save(Nurse nurse) {
-        if (nurse.getId() == null) {
-            entityManager.persist(nurse);
-            return nurse;
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Nurse result;
+            if (nurse.getId() == null) {
+                em.persist(nurse);
+                result = nurse;
+            } else {
+                result = em.merge(nurse);
+            }
+            em.getTransaction().commit();
+            return result;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
         }
-        return entityManager.merge(nurse);
     }
 
     @Override
-    @Transactional
     public void deleteById(Long id) {
-        Nurse managed = entityManager.find(Nurse.class, id);
-        if (managed != null) {
-            entityManager.remove(managed);
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Nurse managed = em.find(Nurse.class, id);
+            if (managed != null) {
+                em.remove(managed);
+            }
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
         }
     }
 
     @Override
-    @Transactional(Transactional.TxType.SUPPORTS)
     public Optional<Nurse> findByEmail(String email) {
-        return entityManager.createQuery(
-                        "SELECT n FROM Nurse n WHERE LOWER(n.email) = :email",
-                        Nurse.class)
-                .setParameter("email", email.toLowerCase())
-                .getResultStream()
-                .findFirst();
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                            "SELECT n FROM Nurse n WHERE LOWER(n.email) = :email",
+                            Nurse.class)
+                    .setParameter("email", email.toLowerCase())
+                    .getResultStream()
+                    .findFirst();
+        } finally {
+            em.close();
+        }
     }
 }
