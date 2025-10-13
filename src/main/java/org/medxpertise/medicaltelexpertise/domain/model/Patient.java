@@ -248,6 +248,13 @@
             this.consultations = consultations;
         }
 
-        public void setDisplayRegisteredAt(Date registeredDate) {
+
+        public Date getDisplayRegisteredAt() {
+            return displayRegisteredAt;
         }
+
+        public void setDisplayRegisteredAt(Date displayRegisteredAt) {
+            this.displayRegisteredAt = displayRegisteredAt;
+        }
+
     }

@@ -30,6 +30,8 @@ public class QueueEntry {
     @JoinColumn(name = "created_by_id")
     private Nurse createdBy;
 
+    private Date displayArrivalTime;
+
     @PrePersist
     private void onCreate() {
         if (arrivalTime == null) {
@@ -92,6 +94,12 @@ public class QueueEntry {
         this.createdBy = createdBy;
     }
 
-    public void setDisplayArrivalTime(Date arrival) {
+
+    public void setDisplayArrivalTime(Date displayArrivalTime) {
+        this.displayArrivalTime = displayArrivalTime;
+    }
+
+        public Date getDisplayArrivalTime() {
+        return displayArrivalTime;
     }
 }
