@@ -48,11 +48,8 @@ jobs:
           username: ${{ secrets.TOMCAT_SSH_USER }}
           key: ${{ secrets.TOMCAT_SSH_KEY }}
           script: |
-            echo "Uploading WAR..."
             scp target/*.war ${{ secrets.TOMCAT_SSH_USER }}@${{ secrets.TOMCAT_SSH_HOST }}:/tmp/medicalapp.war
-            echo "Moving WAR to Tomcat webapps..."
             mv /tmp/medicalapp.war ${{ secrets.TOMCAT_APP_PATH }}/medicalapp.war
-            echo "Restarting Tomcat..."
             systemctl restart tomcat
 
 

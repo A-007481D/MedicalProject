@@ -27,9 +27,24 @@ public class PromoteUserServlet extends HttpServlet {
         Long userId = Long.parseLong(req.getParameter("userId"));
         String newRoleStr = req.getParameter("role");
 
-        Role newRole = Role.valueOf(newRoleStr);
+        // Validate role
+        if (newRoleStr == null || newRoleStr.isBlank()) {
+            resp.sendRedirect(req.getContextPath() + "/dashboard/admin?error=invalidRole");
+            return;
+        }
+
+        Role newRole;
+        try {
+            newRole = Role.valueOf(newRoleStr);
+        } catch (IllegalArgumentException e) {
+            // submitted role is not a valid enum
+            resp.sendRedirect(req.getContextPath() + "/dashboard/admin?error=invalidRole");
+            return;
+        }
+
+        // promote user
         adminService.changeUserRole(userId, newRole);
 
-        resp.sendRedirect(req.getContextPath() + "/dashboard/admin");
+        resp.sendRedirect(req.getContextPath() + "/dashboard/admin?success=roleChanged");
     }
 }
