@@ -1,6 +1,8 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
+<%
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    pageContext.setAttribute("timeFormatter", timeFormatter);
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -337,7 +339,7 @@
                                     <td>${patient.firstName} ${patient.lastName}</td>
                                     <td>${patient.socialSecurityNumber}</td>
                                     <td>
-                                        <fmt:formatDate value="${patient.registeredAt}" pattern="HH:mm" type="time"/>
+                                        ${patient.registeredAt.format(timeFormatter)}
                                     </td>
                                     <td>
                                         <c:choose>

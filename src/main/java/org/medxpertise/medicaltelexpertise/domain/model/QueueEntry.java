@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.QueueStatus;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "queue_entries")
@@ -40,8 +41,7 @@ public class QueueEntry {
     }
 
     public void enqueue() {
-        status = QueueStatus.WAITING;
-        arrivalTime = LocalDateTime.now();
+
     }
 
     public void markInConsultation() {
@@ -90,5 +90,8 @@ public class QueueEntry {
 
     public void setCreatedBy(Nurse createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public void setDisplayArrivalTime(Date arrival) {
     }
 }

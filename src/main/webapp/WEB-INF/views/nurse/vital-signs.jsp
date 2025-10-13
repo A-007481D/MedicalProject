@@ -213,6 +213,7 @@
             </p>
             
             <form method="post" action="${pageContext.request.contextPath}/nurse/vital-signs">
+                <input type="hidden" name="csrfToken" value="${csrfToken}">
                 <input type="hidden" name="patientId" value="${patient.id}">
                 
                 <div class="form-row">
