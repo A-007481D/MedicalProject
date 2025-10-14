@@ -74,7 +74,7 @@
         @JoinColumn(name = "created_by_id")
         private Nurse createdBy;
 
-        @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.EAGER)
         private List<VitalSign> vitalSigns = new ArrayList<>();
 
         @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
