@@ -1,0 +1,50 @@
+sequenceDiagram
+    autonumber
+    participant P as Patient
+    participant N as Infirmier
+    participant SYS as Système Télé-expertise
+    participant G as Médecin Généraliste
+    participant S as Médecin Spécialiste
+
+%% ARRIVEE DU PATIENT
+    P->>N: Arrive à l’hôpital pour consultation
+    N->>SYS: Recherche du patient (CIN / NSS)
+    alt Patient existant
+        SYS-->>N: Infos patient trouvées
+        N->>SYS: Saisit nouveaux signes vitaux
+    else Nouveau patient
+        N->>SYS: Enregistre nouvelles données patient
+        SYS-->>N: Dossier patient créé
+    end
+    N->>SYS: Ajoute patient à la file d’attente (statut = WAITING)
+    SYS-->>N: Confirmation + affichage dans la file d’attente
+
+%% CONSULTATION DU GENERALISTE
+    G->>SYS: Consulte la liste des patients en attente
+    SYS-->>G: Liste des patients triée par heure d’arrivée
+    G->>SYS: Sélectionne un patient et ouvre son dossier
+    G->>SYS: Crée une nouvelle consultation (motif + observations)
+
+    alt Cas simple (prise en charge directe)
+        G->>SYS: Saisit diagnostic et traitement
+        SYS-->>G: Consultation marquée comme TERMINÉE
+    else Cas complexe (besoin d’expertise)
+        G->>SYS: Clique “Demander avis spécialiste”
+        G->>SYS: Sélectionne spécialité requise (ex: Cardiologie)
+        SYS-->>G: Liste des spécialistes filtrés par spécialité + tarif
+        G->>SYS: Choisit un spécialiste et un créneau disponible
+        G->>SYS: Remplit la demande (question, priorité, données)
+        SYS->>S: Notification d’une nouvelle demande (EN_ATTENTE_AVIS_SPECIALISTE)
+    end
+
+%% INTERVENTION DU SPECIALISTE
+    S->>SYS: Consulte les demandes reçues
+    SYS-->>S: Filtre par statut EN_ATTENTE ou priorité
+    S->>SYS: Ouvre le dossier patient et saisit son avis médical
+    S->>SYS: Marque la demande comme TERMINÉE
+    SYS-->>G: Avis reçu et consultation mise à jour
+
+%% CLÔTURE
+    G->>SYS: Clôture la consultation finale
+    SYS-->>G: Statut consultation = TERMINÉE
+    SYS-->>P: Notification ou compte rendu disponible
