@@ -6,14 +6,20 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.medxpertise.medicaltelexpertise.application.service.ConsultationService;
 import org.medxpertise.medicaltelexpertise.application.service.QueueService;
+import org.medxpertise.medicaltelexpertise.domain.model.Consultation;
 import org.medxpertise.medicaltelexpertise.domain.model.Doctor;
+import org.medxpertise.medicaltelexpertise.domain.model.ExpertiseRequest;
 import org.medxpertise.medicaltelexpertise.domain.model.QueueEntry;
 import org.medxpertise.medicaltelexpertise.domain.model.User;
+import org.medxpertise.medicaltelexpertise.domain.model.enums.ConsultationStatus;
+import org.medxpertise.medicaltelexpertise.domain.model.enums.ExpertiseStatus;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.DoctorType;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.Role;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +29,7 @@ import java.util.stream.Collectors;
 public class GeneralistDashboardServlet extends HttpServlet {
     
     private final QueueService queueService = new QueueService();
+    private final ConsultationService consultationService = new ConsultationService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
@@ -54,7 +61,6 @@ public class GeneralistDashboardServlet extends HttpServlet {
 
         List<QueueEntry> waitingPatients = queueService.getWaitingQueue();
         
-        // Convert LocalDateTime to Date for JSP compatibility
         waitingPatients = waitingPatients.stream().peek(e -> {
             if (e.getArrivalTime() != null) {
                 Date arrival = Date.from(e.getArrivalTime()
@@ -63,6 +69,27 @@ public class GeneralistDashboardServlet extends HttpServlet {
                 e.setDisplayArrivalTime(arrival);
             }
         }).collect(Collectors.toList());
+        
+        // Calculate statistics
+        if (user instanceof Doctor) {
+            Doctor doctor = (Doctor) user;
+            
+            // Get today's consultations
+            List<Consultation> allConsultations = consultationService.getConsultationsByGeneralist(doctor.getId());
+            List<Consultation> todayConsultations = allConsultations.stream()
+                    .filter(c -> c.getCreatedAt().toLocalDate().equals(java.time.LocalDate.now()))
+                    .collect(Collectors.toList());
+            
+            // Get pending expertise requests
+            List<ExpertiseRequest> pendingExpertise = allConsultations.stream()
+                    .filter(c -> c.getExpertiseRequest() != null && 
+                                c.getExpertiseRequest().getStatus() == ExpertiseStatus.PENDING)
+                    .map(Consultation::getExpertiseRequest)
+                    .collect(Collectors.toList());
+            
+            req.setAttribute("todayConsultationsCount", todayConsultations.size());
+            req.setAttribute("pendingExpertiseCount", pendingExpertise.size());
+        }
         
         req.setAttribute("waitingPatients", waitingPatients);
         
