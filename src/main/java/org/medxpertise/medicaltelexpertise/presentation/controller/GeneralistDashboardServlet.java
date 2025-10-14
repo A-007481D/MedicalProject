@@ -1,0 +1,71 @@
+package org.medxpertise.medicaltelexpertise.presentation.controller;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.medxpertise.medicaltelexpertise.application.service.QueueService;
+import org.medxpertise.medicaltelexpertise.domain.model.Doctor;
+import org.medxpertise.medicaltelexpertise.domain.model.QueueEntry;
+import org.medxpertise.medicaltelexpertise.domain.model.User;
+import org.medxpertise.medicaltelexpertise.domain.model.enums.DoctorType;
+import org.medxpertise.medicaltelexpertise.domain.model.enums.Role;
+
+import java.io.IOException;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@WebServlet("/dashboard/generalist")
+public class GeneralistDashboardServlet extends HttpServlet {
+    
+    private final QueueService queueService = new QueueService();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
+            throws ServletException, IOException {
+        
+        HttpSession session = req.getSession(false);
+        if (session == null || session.getAttribute("user") == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        User user = (User) session.getAttribute("user");
+        
+        if (user.getRole() != Role.GENERALIST) {
+            resp.sendRedirect(req.getContextPath() + "/waiting");
+            return;
+        }
+
+        if (user instanceof Doctor) {
+            Doctor doctor = (Doctor) user;
+            
+            if (doctor.getDoctorType() != DoctorType.GENERALIST) {
+                resp.sendRedirect(req.getContextPath() + "/waiting");
+                return;
+            }
+            
+            req.setAttribute("doctor", doctor);
+        }
+
+        List<QueueEntry> waitingPatients = queueService.getWaitingQueue();
+        
+        // Convert LocalDateTime to Date for JSP compatibility
+        waitingPatients = waitingPatients.stream().peek(e -> {
+            if (e.getArrivalTime() != null) {
+                Date arrival = Date.from(e.getArrivalTime()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant());
+                e.setDisplayArrivalTime(arrival);
+            }
+        }).collect(Collectors.toList());
+        
+        req.setAttribute("waitingPatients", waitingPatients);
+        
+        req.getRequestDispatcher("/WEB-INF/views/generalist/dashboard.jsp").forward(req, resp);
+    }
+}

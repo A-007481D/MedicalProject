@@ -27,7 +27,7 @@ public class Consultation {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "generalist_id", nullable = false)
-    private Generalist generalist;
+    private Doctor generalist;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -125,11 +125,11 @@ public class Consultation {
         this.patient = patient;
     }
 
-    public Generalist getGeneralist() {
+    public Doctor getGeneralist() {
         return generalist;
     }
 
-    public void setGeneralist(Generalist generalist) {
+    public void setGeneralist(Doctor generalist) {
         this.generalist = generalist;
     }
 

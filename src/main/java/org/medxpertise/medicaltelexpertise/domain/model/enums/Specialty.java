@@ -1,10 +1,8 @@
 package org.medxpertise.medicaltelexpertise.domain.model.enums;
 
 public enum Specialty {
-    // For Generalists
     GENERAL_PRACTICE("General Practice"),
     
-    // For Specialists
     CARDIOLOGY("Cardiology"),
     DERMATOLOGY("Dermatology"),
     ENDOCRINOLOGY("Endocrinology"),

@@ -63,6 +63,10 @@ public class AdminService {
             em.createNativeQuery("DELETE FROM doctor WHERE id = :id")
                     .setParameter("id", user.getId())
                     .executeUpdate();
+        } else if (oldRole == Role.ADMIN) {
+            em.createNativeQuery("DELETE FROM admin WHERE id = :id")
+                    .setParameter("id", user.getId())
+                    .executeUpdate();
         }
 
         user.setRole(newRole);
@@ -70,24 +74,30 @@ public class AdminService {
 
         switch (newRole) {
             case NURSE:
-                em.createNativeQuery("INSERT INTO nurse (id) VALUES (:id)")
+                em.createNativeQuery("INSERT INTO nurse (id, phone) VALUES (:id, NULL)")
                         .setParameter("id", user.getId())
                         .executeUpdate();
                 break;
 
             case GENERALIST:
-                em.createNativeQuery("INSERT INTO doctor (id, dtype) VALUES (:id, 'GENERALIST')")
+                em.createNativeQuery("INSERT INTO doctor (id, phone, specialty, doctor_type) VALUES (:id, NULL, 'GENERAL_PRACTICE', 'GENERALIST')")
                         .setParameter("id", user.getId())
                         .executeUpdate();
                 break;
 
             case SPECIALIST:
-                em.createNativeQuery("INSERT INTO doctor (id, dtype) VALUES (:id, 'SPECIALIST')")
+                em.createNativeQuery("INSERT INTO doctor (id, phone, specialty, doctor_type) VALUES (:id, NULL, 'CARDIOLOGY', 'SPECIALIST')")
                         .setParameter("id", user.getId())
                         .executeUpdate();
                 break;
 
             case ADMIN:
+                em.createNativeQuery("INSERT INTO admin (id) VALUES (:id)")
+                        .setParameter("id", user.getId())
+                        .executeUpdate();
+                break;
+
+            case BASE:
                 break;
         }
     }

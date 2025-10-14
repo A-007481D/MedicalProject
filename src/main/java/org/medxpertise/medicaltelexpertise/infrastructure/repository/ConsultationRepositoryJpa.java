@@ -16,7 +16,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class ConsultationRepositoryJpa implements ConsultationRepository {
 
-    @PersistenceContext(unitName = "medicalPU")
+    @PersistenceContext(unitName = "MedicalPU")
     private EntityManager entityManager;
 
     @Override

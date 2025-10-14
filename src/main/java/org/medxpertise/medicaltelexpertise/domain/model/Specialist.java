@@ -2,6 +2,12 @@ package org.medxpertise.medicaltelexpertise.domain.model;
 
 import jakarta.persistence.*;
 
+/**
+ * @deprecated Use Doctor with doctorType = DoctorType.SPECIALIST instead.
+ * This class is maintained temporarily for backward compatibility.
+ */
+
+@Deprecated
 @Entity
 @DiscriminatorValue("SPECIALIST")
 public class Specialist extends Doctor {
