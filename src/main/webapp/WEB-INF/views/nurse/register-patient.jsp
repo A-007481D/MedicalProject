@@ -217,6 +217,7 @@
             <h2>🔍 Step 1: Search for Existing Patient</h2>
             <div class="search-section">
                 <form method="post" action="${pageContext.request.contextPath}/nurse/register-patient">
+                    <input type="hidden" name="csrfToken" value="${csrfToken}">
                     <input type="hidden" name="action" value="search">
                     <div class="form-row">
                         <div class="form-group">
@@ -257,6 +258,7 @@
             </p>
             
             <form method="post" action="${pageContext.request.contextPath}/nurse/register-patient">
+                <input type="hidden" name="csrfToken" value="${csrfToken}">
                 <input type="hidden" name="action" value="registerNew">
                 
                 <h3 style="color: #667eea; margin-bottom: 1rem;">📋 Administrative Information</h3>

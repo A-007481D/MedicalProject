@@ -18,6 +18,7 @@
 </c:if>
 
 <form action="${pageContext.request.contextPath}/register" method="post">
+    <input type="hidden" name="csrfToken" value="${csrfToken}">
     <label>First Name:</label>
     <input type="text" name="firstName" required/><br/>
 

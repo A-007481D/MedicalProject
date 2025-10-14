@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.QueueStatus;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "queue_entries")
@@ -14,7 +15,7 @@ public class QueueEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
@@ -29,6 +30,8 @@ public class QueueEntry {
     @JoinColumn(name = "created_by_id")
     private Nurse createdBy;
 
+    private Date displayArrivalTime;
+
     @PrePersist
     private void onCreate() {
         if (arrivalTime == null) {
@@ -40,8 +43,7 @@ public class QueueEntry {
     }
 
     public void enqueue() {
-        status = QueueStatus.WAITING;
-        arrivalTime = LocalDateTime.now();
+
     }
 
     public void markInConsultation() {
@@ -90,5 +92,14 @@ public class QueueEntry {
 
     public void setCreatedBy(Nurse createdBy) {
         this.createdBy = createdBy;
+    }
+
+
+    public void setDisplayArrivalTime(Date displayArrivalTime) {
+        this.displayArrivalTime = displayArrivalTime;
+    }
+
+        public Date getDisplayArrivalTime() {
+        return displayArrivalTime;
     }
 }

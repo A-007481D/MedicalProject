@@ -32,6 +32,7 @@
             </td>
             <td>
                 <form method="post" action="${pageContext.request.contextPath}/admin/promote">
+                    <input type="hidden" name="csrfToken" value="${csrfToken}">
                     <input type="hidden" name="userId" value="${user.id}" />
                     <select name="role" required>
                         <option value="" disabled ${empty user.role || user.role.name() == 'BASE' ? 'selected' : ''}>-- Select Role --</option>
