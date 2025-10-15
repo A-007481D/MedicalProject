@@ -40,7 +40,6 @@ public class GeneralistConsultationsServlet extends HttpServlet {
         if (user instanceof Doctor) {
             Doctor doctor = (Doctor) user;
             
-            // Get all consultations for this generalist
             List<Consultation> consultations = consultationService.getConsultationsByGeneralist(doctor.getId());
             
             req.setAttribute("consultations", consultations);

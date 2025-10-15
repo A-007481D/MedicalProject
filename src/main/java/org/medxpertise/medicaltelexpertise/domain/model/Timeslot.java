@@ -15,18 +15,18 @@ public class Timeslot {
     private Long id;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "start_time" ,nullable = false)
     private LocalDateTime start;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(name = "end_time",nullable = false)
     private LocalDateTime end;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TimeslotStatus status = TimeslotStatus.AVAILABLE;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id", nullable = false)
     private SpecialistProfile profile;
 

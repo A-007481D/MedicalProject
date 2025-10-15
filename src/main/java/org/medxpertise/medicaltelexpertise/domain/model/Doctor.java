@@ -23,7 +23,7 @@ public class Doctor extends User {
     @Column(name = "doctor_type", length = 20)
     private DoctorType doctorType;
 
-    @OneToOne(mappedBy = "specialist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "specialist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private SpecialistProfile profile;
 
     public String getPhone() {

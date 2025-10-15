@@ -42,7 +42,6 @@ public class GeneralistExpertiseRequestsServlet extends HttpServlet {
         if (user instanceof Doctor) {
             Doctor doctor = (Doctor) user;
             
-            // Get all consultations with expertise requests for this generalist
             List<Consultation> consultations = consultationService.getConsultationsByGeneralist(doctor.getId());
             List<ExpertiseRequest> expertiseRequests = consultations.stream()
                     .filter(c -> c.getExpertiseRequest() != null)

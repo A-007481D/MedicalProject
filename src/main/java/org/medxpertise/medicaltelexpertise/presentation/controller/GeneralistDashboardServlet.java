@@ -60,33 +60,40 @@ public class GeneralistDashboardServlet extends HttpServlet {
         }
 
         List<QueueEntry> waitingPatients = queueService.getWaitingQueue();
-        
+
         waitingPatients = waitingPatients.stream().peek(e -> {
             if (e.getArrivalTime() != null) {
-                Date arrival = Date.from(e.getArrivalTime()
-                        .atZone(ZoneId.systemDefault())
-                        .toInstant());
-                e.setDisplayArrivalTime(arrival);
+                try {
+                    Date arrival = Date.from(e.getArrivalTime()
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant());
+                    e.setDisplayArrivalTime(arrival);
+                } catch (Exception ex) {
+                    e.setDisplayArrivalTime(null);
+                }
+            } else {
+                e.setDisplayArrivalTime(null);
             }
         }).collect(Collectors.toList());
-        
-        // Calculate statistics
+
+
         if (user instanceof Doctor) {
             Doctor doctor = (Doctor) user;
             
-            // Get today's consultations
             List<Consultation> allConsultations = consultationService.getConsultationsByGeneralist(doctor.getId());
+            
             List<Consultation> todayConsultations = allConsultations.stream()
                     .filter(c -> c.getCreatedAt().toLocalDate().equals(java.time.LocalDate.now()))
+                    .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
                     .collect(Collectors.toList());
             
-            // Get pending expertise requests
             List<ExpertiseRequest> pendingExpertise = allConsultations.stream()
                     .filter(c -> c.getExpertiseRequest() != null && 
                                 c.getExpertiseRequest().getStatus() == ExpertiseStatus.PENDING)
                     .map(Consultation::getExpertiseRequest)
                     .collect(Collectors.toList());
             
+            req.setAttribute("todayConsultations", todayConsultations);
             req.setAttribute("todayConsultationsCount", todayConsultations.size());
             req.setAttribute("pendingExpertiseCount", pendingExpertise.size());
         }
@@ -96,3 +103,5 @@ public class GeneralistDashboardServlet extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/views/generalist/dashboard.jsp").forward(req, resp);
     }
 }
+
+///  add the vitals signs to access them in the genralist dashboard

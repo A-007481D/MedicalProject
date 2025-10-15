@@ -12,7 +12,7 @@ import jakarta.persistence.*;
 @DiscriminatorValue("SPECIALIST")
 public class Specialist extends Doctor {
 
-    @OneToOne(mappedBy = "specialist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "specialist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private SpecialistProfile profile;
 
     public SpecialistProfile getProfile() {

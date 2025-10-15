@@ -38,7 +38,6 @@ public class CreateConsultationServlet extends HttpServlet {
 
         User user = (User) session.getAttribute("user");
         
-        // Check if user is a generalist
         if (user.getRole() != Role.GENERALIST || !(user instanceof Doctor)) {
             resp.sendRedirect(req.getContextPath() + "/waiting");
             return;
@@ -47,7 +46,6 @@ public class CreateConsultationServlet extends HttpServlet {
         Doctor generalist = (Doctor) user;
 
         try {
-            // Get form parameters
             Long patientId = Long.parseLong(req.getParameter("patientId"));
             String motif = req.getParameter("motif");
             String observations = req.getParameter("observations");
@@ -61,7 +59,6 @@ public class CreateConsultationServlet extends HttpServlet {
                 return;
             }
 
-            // Create consultation
             Consultation consultation = new Consultation();
             consultation.setPatient(patient);
             consultation.setGeneralist(generalist);
@@ -71,13 +68,10 @@ public class CreateConsultationServlet extends HttpServlet {
             consultation.setCreatedAt(LocalDateTime.now());
             consultation.setStatus(ConsultationStatus.IN_PROGRESS);
 
-            // Save consultation
             Consultation savedConsultation = consultationService.createConsultation(consultation);
 
-            // Remove patient from queue (they are now being consulted)
             queueService.removeFromQueue(patientId);
 
-            // Redirect to consultation detail page
             resp.sendRedirect(req.getContextPath() + "/generalist/consultation/" + savedConsultation.getId());
 
         } catch (NumberFormatException e) {

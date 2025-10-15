@@ -41,11 +41,11 @@ public class VitalSign {
     @Column(nullable = false)
     private LocalDateTime recordedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "recorded_by_id", nullable = false)
     private Nurse recordedBy;
 
