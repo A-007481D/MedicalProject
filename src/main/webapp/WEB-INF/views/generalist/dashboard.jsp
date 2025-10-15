@@ -101,28 +101,27 @@
 
                                         <div class="text-muted small mb-3">
                                             <i class="bi bi-clock"></i>
-<%--                                            <c:if test="${not empty entry.waitingDuration}">--%>
-<%--                                                Arrivé à: <fmt:formatDate value="${entry.displayArrivalTime}" pattern="HH:mm"/>--%>
-<%--                                            </c:if>--%>
+                                            Arrivé à: <fmt:formatDate value="${entry.displayArrivalTime}" pattern="HH:mm"/>
                                         </div>
 
-                                        <c:if test="${not empty entry.patient.latestVitalSigns}">
+                                        <c:if test="${not empty entry.patient.vitalSigns}">
                                             <div class="bg-light rounded p-3 mb-3 row g-2 small text-muted">
+                                                <c:set var="latestVitalSign" value="${entry.patient.vitalSigns[0]}" />
                                                 <div class="col-6">
                                                     <i class="bi bi-heart-pulse text-danger"></i>
-                                                        ${entry.patient.latestVitalSigns.bloodPressure}
+                                                    ${latestVitalSign.bloodPressure}
                                                 </div>
                                                 <div class="col-6">
                                                     <i class="bi bi-activity text-info"></i>
-                                                        ${entry.patient.latestVitalSigns.pulse} bpm
+                                                    ${latestVitalSign.pulse} bpm
                                                 </div>
                                                 <div class="col-6">
                                                     <i class="bi bi-thermometer text-warning"></i>
-                                                        ${entry.patient.latestVitalSigns.temperature}°C
+                                                    ${latestVitalSign.temperature}°C
                                                 </div>
                                                 <div class="col-6">
                                                     <i class="bi bi-person"></i>
-                                                        ${entry.patient.latestVitalSigns.weight} kg
+                                                    ${latestVitalSign.weight} kg
                                                 </div>
                                             </div>
                                         </c:if>
