@@ -5,6 +5,7 @@
       <map>
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin/dashboard.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/admin" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/generalist/dashboard.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/generalist" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/generalist/patient-dossier.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/generalist" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/nurse/dashboard.jsp" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/views/nurse" />
       </map>
     </option>

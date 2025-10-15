@@ -37,7 +37,12 @@
                         <h4>${patient.firstName} ${patient.lastName}</h4>
                         <hr>
                         <p><strong><i class="bi bi-calendar"></i> Date de naissance:</strong><br>
-                            <fmt:formatDate value="${patient.dateOfBirth}" pattern="dd/MM/yyyy"/>
+                            <c:if test="${not empty patient.birthDate}">
+                                <c:out value="${patient.birthDate}"/>
+                            </c:if>
+                            <c:if test="${empty patient.birthDate}">
+                                Non spécifiée
+                            </c:if>
                         </p>
                         <p><strong><i class="bi bi-gender-ambiguous"></i> Sexe:</strong><br>
                             ${patient.gender}
@@ -47,9 +52,6 @@
                         </p>
                         <p><strong><i class="bi bi-phone"></i> Téléphone:</strong><br>
                             ${patient.phone}
-                        </p>
-                        <p><strong><i class="bi bi-envelope"></i> Email:</strong><br>
-                            ${patient.email}
                         </p>
                         <p><strong><i class="bi bi-geo-alt"></i> Adresse:</strong><br>
                             ${patient.address}
@@ -68,13 +70,13 @@
                                 <c:set var="latest" value="${vitalSignsHistory[0]}" />
                                 <div class="mb-2">
                                     <small class="text-muted">
-                                        <fmt:formatDate value="${latest.measuredAt}" pattern="dd/MM/yyyy HH:mm"/>
+                                        ${latest.recordedAt}
                                     </small>
                                 </div>
                                 <p><i class="bi bi-heart-pulse text-danger"></i> 
                                    <strong>Tension:</strong> ${latest.bloodPressure}</p>
                                 <p><i class="bi bi-activity text-info"></i> 
-                                   <strong>Fréquence cardiaque:</strong> ${latest.heartRate} bpm</p>
+                                   <strong>Fréquence cardiaque:</strong> ${latest.pulse} bpm</p>
                                 <p><i class="bi bi-thermometer text-warning"></i> 
                                    <strong>Température:</strong> ${latest.temperature}°C</p>
                                 <p><i class="bi bi-wind text-primary"></i> 
@@ -101,6 +103,7 @@
                     <div class="card-body">
                         <form action="${pageContext.request.contextPath}/generalist/consultation/create" method="post">
                             <input type="hidden" name="patientId" value="${patient.id}">
+                            <input type="hidden" name="csrfToken" value="${csrfToken}">
                             
                             <div class="mb-3">
                                 <label for="motif" class="form-label">Motif de consultation *</label>
@@ -161,9 +164,9 @@
                                     <tbody>
                                         <c:forEach var="vs" items="${vitalSignsHistory}" begin="1">
                                             <tr>
-                                                <td><fmt:formatDate value="${vs.measuredAt}" pattern="dd/MM HH:mm"/></td>
+                                                <td>${vs.recordedAt}</td>
                                                 <td>${vs.bloodPressure}</td>
-                                                <td>${vs.heartRate}</td>
+                                                <td>${vs.pulse}</td>
                                                 <td>${vs.temperature}°C</td>
                                                 <td>${vs.respiratoryRate}</td>
                                                 <td>${vs.weight} kg</td>
