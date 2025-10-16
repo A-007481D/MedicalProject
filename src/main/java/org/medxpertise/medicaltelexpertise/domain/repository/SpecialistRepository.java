@@ -1,5 +1,6 @@
 package org.medxpertise.medicaltelexpertise.domain.repository;
 
+import jakarta.enterprise.inject.Default;
 import org.medxpertise.medicaltelexpertise.domain.model.Consultation;
 import org.medxpertise.medicaltelexpertise.domain.model.Doctor;
 import org.medxpertise.medicaltelexpertise.domain.model.SpecialistProfile;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Default
 public interface SpecialistRepository {
 
     Optional<Doctor> findById(Long id);

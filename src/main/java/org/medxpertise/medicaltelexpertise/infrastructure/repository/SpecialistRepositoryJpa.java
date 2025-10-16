@@ -22,6 +22,7 @@ import org.medxpertise.medicaltelexpertise.infrastructure.config.qualifier.AppEn
 
 @ApplicationScoped
 @Transactional
+@jakarta.enterprise.inject.Default
 public class SpecialistRepositoryJpa implements SpecialistRepository {
 
     private static final Logger logger = Logger.getLogger(SpecialistRepositoryJpa.class.getName());

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.inject.Inject;
 import org.medxpertise.medicaltelexpertise.domain.model.Doctor;
 import org.medxpertise.medicaltelexpertise.application.service.SpecialistService;
 import org.medxpertise.medicaltelexpertise.domain.model.SpecialistProfile;
@@ -23,9 +24,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @WebServlet("/specialist/timeslots")
+@jakarta.enterprise.context.RequestScoped
 public class SpecialistTimeslotsServlet extends HttpServlet {
     private static final Logger logger = Logger.getLogger(SpecialistTimeslotsServlet.class.getName());
-    private final SpecialistService specialistService = new SpecialistService();
+    
+    @Inject
+    private SpecialistService specialistService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
