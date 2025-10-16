@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.Role;
+import org.medxpertise.medicaltelexpertise.domain.model.enums.DoctorType;
+import org.medxpertise.medicaltelexpertise.domain.model.enums.Specialty;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,8 +14,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING, length = 20)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,23 +47,50 @@ public abstract class User {
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
-    @Column(name = "created_at",nullable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    @Column(length = 20)
+    private String phone;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
+
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "doctor_type")
+//    private DoctorType doctorType;
 
     @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "actor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AuditLog> auditLogs = new ArrayList<>();
-
+    
     @OneToMany(mappedBy = "uploadedBy", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Report> uploadedReports = new ArrayList<>();
 
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.version == null) {
+            this.version = 0L;
+        }
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        // This is called automatically before any update
+    }
+
 
     protected User() {}
-
+    
     protected User(String username, String firstName, String lastName, String passwordHash, String email, Role role) {
         this.username = username;
         this.firstName = firstName;
@@ -69,24 +98,15 @@ public abstract class User {
         this.passwordHash = passwordHash;
         this.email = email;
         this.role = role;
-        this.active = true;
-        this.createdAt = LocalDateTime.now();
     }
-
+    
     public void login() {
         this.lastLoginAt = LocalDateTime.now();
         addAuditLog(new AuditLog("USER_LOGIN", "User logged in", this));
     }
-
+    
     public void logout() {
         addAuditLog(new AuditLog("USER_LOGOUT", "User logged out", this));
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
     }
 
     public LocalDateTime getCreatedAt() {
@@ -163,6 +183,22 @@ public abstract class User {
 
     public LocalDateTime getLastLoginAt() {
         return lastLoginAt;
+    }
+    
+    public String getPhone() {
+        return phone;
+    }
+    
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    public Long getVersion() {
+        return version;
+    }
+    
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public void setLastLoginAt(LocalDateTime lastLoginAt) {

@@ -2,12 +2,14 @@ package org.medxpertise.medicaltelexpertise.infrastructure.repository;
 
 import jakarta.persistence.EntityManager;
 import org.medxpertise.medicaltelexpertise.domain.model.Patient;
+import org.medxpertise.medicaltelexpertise.domain.model.enums.Gender;
 import org.medxpertise.medicaltelexpertise.domain.repository.PatientRepository;
 import org.medxpertise.medicaltelexpertise.infrastructure.config.JpaUtil;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,9 +33,35 @@ public class PatientRepositoryJpa implements PatientRepository {
     public List<Patient> findAll() {
         EntityManager em = getEntityManager();
         try {
-            return em.createQuery(
-                            "SELECT p FROM Patient p ORDER BY p.lastName, p.firstName", Patient.class)
-                    .getResultList();
+            // Use a DTO projection to avoid loading the Nurse relationship
+            List<Object[]> results = em.createQuery(
+                "SELECT p.id, p.cin, p.firstName, p.lastName, p.birthDate, " +
+                "p.gender, p.phone, p.address, p.socialSecurityNumber, p.mutuelle, " +
+                "p.antecedents, p.allergies, p.currentTreatments, p.registeredAt " +
+                "FROM Patient p ORDER BY p.lastName, p.firstName", Object[].class)
+                .getResultList();
+
+            // Map the results to Patient objects
+            List<Patient> patients = new ArrayList<>();
+            for (Object[] row : results) {
+                Patient patient = new Patient();
+                patient.setId((Long) row[0]);
+                patient.setCin((String) row[1]);
+                patient.setFirstName((String) row[2]);
+                patient.setLastName((String) row[3]);
+                patient.setBirthDate((LocalDate) row[4]);
+                patient.setGender((Gender) row[5]);
+                patient.setPhone((String) row[6]);
+                patient.setAddress((String) row[7]);
+                patient.setSocialSecurityNumber((String) row[8]);
+                patient.setMutuelle((String) row[9]);
+                patient.setAntecedents((String) row[10]);
+                patient.setAllergies((String) row[11]);
+                patient.setCurrentTreatments((String) row[12]);
+                patient.setRegisteredAt((LocalDateTime) row[13]);
+                patients.add(patient);
+            }
+            return patients;
         } finally {
             em.close();
         }

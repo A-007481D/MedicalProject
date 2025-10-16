@@ -2,8 +2,9 @@ package org.medxpertise.medicaltelexpertise.infrastructure.repository;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import org.medxpertise.medicaltelexpertise.infrastructure.config.qualifier.AppEntityManager;
 import jakarta.transaction.Transactional;
 import org.medxpertise.medicaltelexpertise.domain.model.ExpertiseRequest;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.ExpertiseStatus;
@@ -16,7 +17,8 @@ import java.util.Optional;
 @ApplicationScoped
 public class ExpertiseRequestRepositoryJpa implements ExpertiseRequestRepository {
 
-    @PersistenceContext(unitName = "medicalPU")
+    @Inject
+    @AppEntityManager
     private EntityManager entityManager;
 
     @Override

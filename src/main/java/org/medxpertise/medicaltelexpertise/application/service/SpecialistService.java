@@ -1,5 +1,7 @@
 package org.medxpertise.medicaltelexpertise.application.service;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.medxpertise.medicaltelexpertise.domain.model.Consultation;
 import org.medxpertise.medicaltelexpertise.domain.model.Doctor;
 import org.medxpertise.medicaltelexpertise.domain.model.SpecialistProfile;
@@ -14,10 +16,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+@ApplicationScoped
 public class SpecialistService {
 
     private static final Logger logger = Logger.getLogger(SpecialistService.class.getName());
-    private final SpecialistRepository specialistRepository = new SpecialistRepositoryJpa();
+    @Inject
+    private SpecialistRepository specialistRepository;
 
     public SpecialistProfile getSpecialistProfile(Long specialistId) {
         logger.info("Getting specialist profile for specialist ID: " + specialistId);

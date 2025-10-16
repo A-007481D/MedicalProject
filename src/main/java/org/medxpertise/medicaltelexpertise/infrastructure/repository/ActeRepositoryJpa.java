@@ -1,9 +1,10 @@
 package org.medxpertise.medicaltelexpertise.infrastructure.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.medxpertise.medicaltelexpertise.infrastructure.config.qualifier.AppEntityManager;
 import org.medxpertise.medicaltelexpertise.domain.model.Acte;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.ActeType;
 import org.medxpertise.medicaltelexpertise.domain.repository.ActeRepository;
@@ -14,7 +15,8 @@ import java.util.Optional;
 @ApplicationScoped
 public class ActeRepositoryJpa implements ActeRepository {
 
-    @PersistenceContext(unitName = "medicalPU")
+    @Inject
+    @AppEntityManager
     private EntityManager entityManager;
 
     @Override

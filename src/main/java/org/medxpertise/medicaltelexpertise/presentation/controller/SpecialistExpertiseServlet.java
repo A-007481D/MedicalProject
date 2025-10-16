@@ -1,5 +1,6 @@
 package org.medxpertise.medicaltelexpertise.presentation.controller;
 
+import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -24,8 +25,10 @@ import java.util.logging.Logger;
 public class SpecialistExpertiseServlet extends HttpServlet {
 
     private static final Logger logger = Logger.getLogger(SpecialistExpertiseServlet.class.getName());
-    private final ExpertiseRequestService expertiseRequestService = new ExpertiseRequestService();
+//    private final ExpertiseRequestService expertiseRequestService = new ExpertiseRequestService();
     private final SpecialistService specialistService = new SpecialistService();
+    @Inject
+    private ExpertiseRequestService expertiseRequestService;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)

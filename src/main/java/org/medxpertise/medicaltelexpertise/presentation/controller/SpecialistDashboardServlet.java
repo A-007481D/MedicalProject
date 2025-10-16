@@ -1,5 +1,6 @@
 package org.medxpertise.medicaltelexpertise.presentation.controller;
 
+import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,13 +22,26 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@WebServlet("/specialist/dashboard")
+@WebServlet("/dashboard/specialist")
 public class SpecialistDashboardServlet extends HttpServlet {
 
     private static final Logger logger = Logger.getLogger(SpecialistDashboardServlet.class.getName());
 
-    private final SpecialistService specialistService = new SpecialistService();
-    private final ExpertiseRequestService expertiseRequestService = new ExpertiseRequestService();
+    @Inject
+    private SpecialistService specialistService;
+    
+    @Inject
+    private ExpertiseRequestService expertiseRequestService;
+    
+    public SpecialistDashboardServlet() {
+        // Default constructor required by servlet spec
+    }
+    
+    // Constructor for testing
+    public SpecialistDashboardServlet(SpecialistService specialistService, ExpertiseRequestService expertiseRequestService) {
+        this.specialistService = specialistService;
+        this.expertiseRequestService = expertiseRequestService;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -45,13 +59,26 @@ public class SpecialistDashboardServlet extends HttpServlet {
         User user = (User) session.getAttribute("user");
         logger.info("User found: " + user.getUsername() + ", role: " + user.getRole());
 
-        if (user.getRole() != Role.SPECIALIST || !(user instanceof Doctor) || ((Doctor) user).getDoctorType() != DoctorType.SPECIALIST) {
-            logger.warning("User is not a specialist doctor, redirecting to waiting");
+        if (user.getRole() != Role.SPECIALIST) {
+            logger.warning("User does not have SPECIALIST role, redirecting to waiting");
+            resp.sendRedirect(req.getContextPath() + "/waiting");
+            return;
+        }
+
+        if (!(user instanceof Doctor)) {
+            logger.warning("User is not a Doctor instance, cannot access specialist dashboard");
             resp.sendRedirect(req.getContextPath() + "/waiting");
             return;
         }
 
         Doctor specialist = (Doctor) user;
+        
+        // Check if doctor type is set and is SPECIALIST
+        if (specialist.getDoctorType() == null || specialist.getDoctorType() != DoctorType.SPECIALIST) {
+            logger.warning("Doctor type is not set to SPECIALIST, redirecting to waiting");
+            resp.sendRedirect(req.getContextPath() + "/waiting");
+            return;
+        }
 
         try {
             // Get specialist profile

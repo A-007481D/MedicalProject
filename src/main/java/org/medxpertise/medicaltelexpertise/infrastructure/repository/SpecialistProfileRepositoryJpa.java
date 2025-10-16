@@ -2,9 +2,10 @@ package org.medxpertise.medicaltelexpertise.infrastructure.repository;
 
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import org.medxpertise.medicaltelexpertise.infrastructure.config.qualifier.AppEntityManager;
 import org.medxpertise.medicaltelexpertise.domain.model.SpecialistProfile;
 import org.medxpertise.medicaltelexpertise.domain.repository.SpecialistProfileRepository;
 
@@ -14,7 +15,8 @@ import java.util.Optional;
 @ApplicationScoped
 public class SpecialistProfileRepositoryJpa implements SpecialistProfileRepository {
 
-    @PersistenceContext(unitName = "medicalPU")
+    @Inject
+    @AppEntityManager
     private EntityManager entityManager;
 
     @Override

@@ -1,8 +1,11 @@
 package org.medxpertise.medicaltelexpertise.application.service;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.medxpertise.medicaltelexpertise.application.service.exception.BusinessRuleException;
+import org.medxpertise.medicaltelexpertise.infrastructure.config.JpaUtil;
+import org.medxpertise.medicaltelexpertise.domain.model.AuditLog;
 import org.medxpertise.medicaltelexpertise.domain.model.BaseUser;
 import org.medxpertise.medicaltelexpertise.domain.model.User;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.Role;
@@ -46,20 +49,66 @@ public class AuthenticationService {
 
     @Transactional
     public User authenticate(String login, String password) {
-        Optional<User> userOpt = userRepository.findByUsername(login);
-        if (userOpt.isEmpty()) {
-            userOpt = userRepository.findByEmail(login);
-        }
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            // 1. First, find just the user ID and password hash using a projection
+            Object[] userData = em.createQuery(
+                "SELECT u.id, u.passwordHash, u.active FROM User u " +
+                "WHERE u.username = :login OR u.email = :login", Object[].class)
+                .setParameter("login", login)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
 
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (BCrypt.checkpw(password, user.getPasswordHash()) && user.isActive()) {
-                user.login();
-                return userRepository.save(user);
+            if (userData == null) {
+                return null;
+            }
+
+            Long userId = (Long) userData[0];
+            String passwordHash = (String) userData[1];
+            boolean isActive = (Boolean) userData[2];
+
+            // 2. Verify password and active status
+            if (!BCrypt.checkpw(password, passwordHash) || !isActive) {
+                return null;
+            }
+
+            // 3. Use native SQL for updates to avoid entity state issues
+            em.getTransaction().begin();
+            try {
+                // Update last login time
+                em.createNativeQuery(
+                    "UPDATE users SET last_login_at = :now WHERE id = :userId")
+                    .setParameter("now", LocalDateTime.now())
+                    .setParameter("userId", userId)
+                    .executeUpdate();
+
+                // Create audit log
+                em.createNativeQuery(
+                    "INSERT INTO audit_logs (actionCode, actor_id, details, timestamp) " +
+                    "VALUES (:actionCode, :actorId, :details, :timestamp)")
+                    .setParameter("actionCode", "USER_LOGIN")
+                    .setParameter("actorId", userId)
+                    .setParameter("details", "User logged in")
+                    .setParameter("timestamp", LocalDateTime.now())
+                    .executeUpdate();
+
+                em.getTransaction().commit();
+                
+                // Return the managed user entity
+                return em.find(User.class, userId);
+                
+            } catch (Exception e) {
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                throw new RuntimeException("Failed to update user login information", e);
+            }
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
             }
         }
-
-        return null;
     }
 
     public void logout(jakarta.servlet.http.HttpSession session) {

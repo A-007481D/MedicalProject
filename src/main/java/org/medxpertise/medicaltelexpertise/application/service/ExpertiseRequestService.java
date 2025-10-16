@@ -1,5 +1,7 @@
 package org.medxpertise.medicaltelexpertise.application.service;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.medxpertise.medicaltelexpertise.domain.model.Doctor;
 import org.medxpertise.medicaltelexpertise.domain.model.ExpertiseRequest;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.ExpertiseStatus;
@@ -11,15 +13,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+@ApplicationScoped
 public class ExpertiseRequestService {
 
     private static final Logger logger = Logger.getLogger(ExpertiseRequestService.class.getName());
-    private final ExpertiseRequestRepositoryJpa expertiseRequestRepository;
+    @Inject
+    private ExpertiseRequestRepositoryJpa expertiseRequestRepository;
 
-    public ExpertiseRequestService() {
-        // For now, we'll use direct instantiation since CDI might not be fully configured
-        this.expertiseRequestRepository = new ExpertiseRequestRepositoryJpa();
-    }
+//    public ExpertiseRequestService() {
+//        // For now, we'll use direct instantiation since CDI might not be fully configured
+//        this.expertiseRequestRepository = new ExpertiseRequestRepositoryJpa();
+//    }
 
     public List<ExpertiseRequest> getAllRequestsBySpecialist(Long specialistId) {
         logger.info("Getting all expertise requests for specialist ID: " + specialistId);

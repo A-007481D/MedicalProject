@@ -70,7 +70,7 @@
         private Date displayRegisteredAt;
 
 
-        @ManyToOne(fetch = FetchType.EAGER)
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "created_by_id")
         private Nurse createdBy;
 

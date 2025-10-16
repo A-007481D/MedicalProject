@@ -6,6 +6,8 @@ import org.medxpertise.medicaltelexpertise.domain.model.User;
 import org.medxpertise.medicaltelexpertise.domain.repository.UserRepository;
 import org.medxpertise.medicaltelexpertise.infrastructure.config.JpaUtil;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,14 +44,74 @@ public class UserRepositoryJpa implements UserRepository {
         EntityManager em = JpaUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-           User merged = em.merge(user);
+            
+            // Check if the entity exists first
+            User existing = em.find(User.class, user.getId());
+            User saved;
+            
+            if (existing != null) {
+                // If it exists, update its fields
+                copyNonNullProperties(user, existing, "id", "version");
+                saved = em.merge(existing);
+            } else {
+                // If it doesn't exist, persist it
+                em.persist(user);
+                saved = user;
+            }
+            
             em.getTransaction().commit();
-            return merged;
+            return saved;
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            throw e;
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw new RuntimeException("Failed to save user", e);
         } finally {
             em.close();
+        }
+    }
+    
+    /**
+     * Copies non-null properties from source to target object
+     * @param source The source object to copy from
+     * @param target The target object to copy to
+     * @param ignoreProperties Properties to ignore during copy
+     */
+    private void copyNonNullProperties(Object source, Object target, String... ignoreProperties) {
+        try {
+            Class<?> clazz = source.getClass();
+            List<String> ignoreList = Arrays.asList(ignoreProperties);
+            
+            // Copy fields from source to target
+            for (Field field : clazz.getDeclaredFields()) {
+                // Skip ignored fields
+                if (ignoreList.contains(field.getName())) {
+                    continue;
+                }
+                
+                field.setAccessible(true);
+                Object value = field.get(source);
+                if (value != null) {
+                    field.set(target, value);
+                }
+            }
+            
+            // Handle superclass fields if they exist
+            Class<?> superClass = clazz.getSuperclass();
+            if (superClass != null && !superClass.equals(Object.class)) {
+                for (Field field : superClass.getDeclaredFields()) {
+                    if (ignoreList.contains(field.getName())) {
+                        continue;
+                    }
+                    field.setAccessible(true);
+                    Object value = field.get(source);
+                    if (value != null) {
+                        field.set(target, value);
+                    }
+                }
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to copy properties", e);
         }
     }
 

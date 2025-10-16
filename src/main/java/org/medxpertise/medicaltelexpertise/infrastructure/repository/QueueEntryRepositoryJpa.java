@@ -30,7 +30,10 @@ public class QueueEntryRepositoryJpa implements QueueEntryRepository {
         EntityManager em = getEntityManager();
         try {
             return em.createQuery(
-                            "SELECT q FROM QueueEntry q ORDER BY q.arrivalTime",
+                            "SELECT new QueueEntry(q.id, q.patient, q.arrivalTime, q.status, q.displayArrivalTime) " +
+                            "FROM QueueEntry q " +
+                            "LEFT JOIN FETCH q.patient " +
+                            "ORDER BY q.arrivalTime",
                             QueueEntry.class)
                     .getResultList();
         } finally {
