@@ -83,4 +83,25 @@ public class ExpertiseRequestRepositoryJpa implements ExpertiseRequestRepository
                 .getResultStream()
                 .findFirst();
     }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List<ExpertiseRequest> findBySpecialistIdAndStatus(Long specialistId, ExpertiseStatus status) {
+        return entityManager.createQuery(
+                        "SELECT er FROM ExpertiseRequest er WHERE er.specialistAssigned.id = :specialistId AND er.status = :status ORDER BY er.requestedAt DESC",
+                        ExpertiseRequest.class)
+                .setParameter("specialistId", specialistId)
+                .setParameter("status", status)
+                .getResultList();
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List<ExpertiseRequest> findBySpecialistId(Long specialistId) {
+        return entityManager.createQuery(
+                        "SELECT er FROM ExpertiseRequest er WHERE er.specialistAssigned.id = :specialistId ORDER BY er.requestedAt DESC",
+                        ExpertiseRequest.class)
+                .setParameter("specialistId", specialistId)
+                .getResultList();
+    }
 }

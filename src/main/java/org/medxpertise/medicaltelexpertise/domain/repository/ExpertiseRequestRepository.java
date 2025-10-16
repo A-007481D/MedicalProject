@@ -14,4 +14,8 @@ public interface ExpertiseRequestRepository extends CrudRepository<ExpertiseRequ
     List<ExpertiseRequest> findByPriority(PriorityLevel priorityLevel);
 
     Optional<ExpertiseRequest> findByConsultationId(Long consultationId);
+
+    List<ExpertiseRequest> findBySpecialistIdAndStatus(Long specialistId, ExpertiseStatus status);
+
+    List<ExpertiseRequest> findBySpecialistId(Long specialistId);
 }

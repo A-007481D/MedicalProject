@@ -7,14 +7,40 @@ import org.medxpertise.medicaltelexpertise.domain.repository.ConsultationReposit
 import org.medxpertise.medicaltelexpertise.infrastructure.config.JpaUtil;
 import org.medxpertise.medicaltelexpertise.infrastructure.repository.ConsultationRepositoryJpa;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class ConsultationService {
+
+    private static final Logger logger = Logger.getLogger(ConsultationService.class.getName());
     private final ConsultationRepository consultationRepository = new ConsultationRepositoryJpa();
 
     public Consultation createConsultation(Consultation consultation) {
-        return consultationRepository.save(consultation);
+        logger.info("=== ConsultationService.createConsultation START ===");
+        logger.info("Consultation details - Patient: " + consultation.getPatient().getFirstName() + " " + consultation.getPatient().getLastName());
+        logger.info("Consultation details - Generalist: " + consultation.getGeneralist().getFirstName() + " " + consultation.getGeneralist().getLastName());
+        logger.info("Consultation details - Motif: " + consultation.getMotif());
+
+        try {
+            logger.info("Calling consultationRepository.save()");
+            Consultation savedConsultation = consultationRepository.save(consultation);
+
+            if (savedConsultation != null && savedConsultation.getId() != null) {
+                logger.info("Consultation saved successfully with ID: " + savedConsultation.getId());
+            } else {
+                logger.severe("Consultation save returned null or consultation has no ID!");
+            }
+
+            logger.info("=== ConsultationService.createConsultation END ===");
+            return savedConsultation;
+
+        } catch (Exception e) {
+            logger.severe("Exception in ConsultationService.createConsultation: " + e.getMessage());
+            logger.info("=== ConsultationService.createConsultation END (ERROR) ===");
+            throw e;
+        }
     }
 
     public Consultation updateConsultation(Consultation consultation) {

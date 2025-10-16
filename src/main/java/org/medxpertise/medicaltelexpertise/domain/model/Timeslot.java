@@ -85,4 +85,4 @@ public class Timeslot {
     public void setProfile(SpecialistProfile profile) {
         this.profile = profile;
     }
-}
+ }
