@@ -131,7 +131,7 @@
 
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-success">
-                                    <i class="bi bi-save"></i> Créer la consultation
+                                    <i class="bi bi-save"></i>Créer la consultation
                                 </button>
                                 <a href="${pageContext.request.contextPath}/dashboard/generalist" 
                                    class="btn btn-secondary">
