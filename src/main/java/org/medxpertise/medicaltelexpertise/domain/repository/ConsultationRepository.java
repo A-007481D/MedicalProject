@@ -17,4 +17,6 @@ public interface ConsultationRepository extends CrudRepository<Consultation, Lon
 
     Optional<Consultation> findWithExpertise(Long consultationId);
 
+    List<Consultation> findExpertiseRequestsBySpecialist(Long specialistId);
+
 }

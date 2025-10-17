@@ -91,13 +91,11 @@ public class VitalSignsServlet extends HttpServlet {
             Double height = (heightStr != null && !heightStr.trim().isEmpty()) 
                     ? Double.parseDouble(heightStr) : null;
             
-            // Add vital signs
             VitalSign vitalSign = patientService.addVitalSigns(
                 patientId, temperature, pulse, bloodPressure,
                 respiratoryRate, weight, height, user.getId()
             );
             
-            // Add patient to queue
             queueService.addToQueue(patientId, user.getId());
             
             resp.sendRedirect(req.getContextPath() + "/dashboard/nurse?success=Patient registered and added to queue");

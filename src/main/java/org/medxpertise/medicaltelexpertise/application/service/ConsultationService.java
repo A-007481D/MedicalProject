@@ -82,4 +82,12 @@ public class ConsultationService {
             em.close();
         }
     }
+    
+
+    public List<Consultation> getExpertiseRequestsBySpecialist(Long specialistId) {
+        if (specialistId == null) {
+            return List.of();
+        }
+        return consultationRepository.findExpertiseRequestsBySpecialist(specialistId);
+    }
 }

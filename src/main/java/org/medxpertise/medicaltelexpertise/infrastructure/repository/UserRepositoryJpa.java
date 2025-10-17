@@ -40,18 +40,26 @@ public class UserRepositoryJpa implements UserRepository {
     @Override
     public User save(User user) {
         EntityManager em = JpaUtil.getEntityManager();
+        em.getTransaction().begin();
+
         try {
-            em.getTransaction().begin();
-           User merged = em.merge(user);
+            if (user.getId() == null) {
+                em.persist(user);
+            } else {
+                user = em.merge(user);
+            }
             em.getTransaction().commit();
-            return merged;
+            return user;
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
+            em.getTransaction().rollback();
             throw e;
         } finally {
             em.close();
         }
     }
+
+
+
 
     @Override
     public void deleteById(Long id) {
