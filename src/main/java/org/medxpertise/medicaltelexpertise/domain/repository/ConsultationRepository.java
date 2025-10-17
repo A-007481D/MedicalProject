@@ -16,4 +16,5 @@ public interface ConsultationRepository extends CrudRepository<Consultation, Lon
     List<Consultation> findBetween(LocalDateTime start, LocalDateTime end);
 
     Optional<Consultation> findWithExpertise(Long consultationId);
+
 }

@@ -17,13 +17,13 @@ public class ExpertiseRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "consultation_id", nullable = false, unique = true)
     private Consultation consultation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "specialist_id")
-    private Specialist specialistAssigned;
+    private Doctor specialistAssigned;
 
     @NotBlank
     @Size(max = 100)
@@ -66,7 +66,7 @@ public class ExpertiseRequest {
         }
     }
 
-    public void assignSpecialist(Specialist specialist) {
+    public void assignSpecialist(Doctor specialist) {
         this.specialistAssigned = specialist;
         if (specialist != null && specialist.getProfile() != null) {
             if (scheduledSlotStart == null && scheduledSlotEnd == null && !specialist.getProfile().getTimeslots().isEmpty()) {
@@ -99,11 +99,11 @@ public class ExpertiseRequest {
         this.consultation = consultation;
     }
 
-    public Specialist getSpecialistAssigned() {
+    public Doctor getSpecialistAssigned() {
         return specialistAssigned;
     }
 
-    public void setSpecialistAssigned(Specialist specialistAssigned) {
+    public void setSpecialistAssigned(Doctor specialistAssigned) {
         this.specialistAssigned = specialistAssigned;
     }
 

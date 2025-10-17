@@ -15,9 +15,9 @@ public class SpecialistProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "specialist_id", nullable = false, unique = true)
-    private Specialist specialist;
+    private Doctor specialist;
 
     @NotNull
     @Min(0)
@@ -37,11 +37,11 @@ public class SpecialistProfile {
         this.id = id;
     }
 
-    public Specialist getSpecialist() {
+    public Doctor getSpecialist() {
         return specialist;
     }
 
-    public void setSpecialist(Specialist specialist) {
+    public void setSpecialist(Doctor specialist) {
         this.specialist = specialist;
         if (specialist != null && specialist.getProfile() != this) {
             specialist.setProfile(this);

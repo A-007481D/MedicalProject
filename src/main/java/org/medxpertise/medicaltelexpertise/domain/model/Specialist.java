@@ -2,11 +2,17 @@ package org.medxpertise.medicaltelexpertise.domain.model;
 
 import jakarta.persistence.*;
 
+/**
+ * @deprecated Use Doctor with doctorType = DoctorType.SPECIALIST instead.
+ * This class is maintained temporarily for backward compatibility.
+ */
+
+@Deprecated
 @Entity
 @DiscriminatorValue("SPECIALIST")
 public class Specialist extends Doctor {
 
-    @OneToOne(mappedBy = "specialist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "specialist", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private SpecialistProfile profile;
 
     public SpecialistProfile getProfile() {

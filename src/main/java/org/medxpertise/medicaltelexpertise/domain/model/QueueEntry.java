@@ -26,7 +26,7 @@ public class QueueEntry {
     @Column(nullable = false, length = 20)
     private QueueStatus status = QueueStatus.WAITING;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by_id")
     private Nurse createdBy;
 

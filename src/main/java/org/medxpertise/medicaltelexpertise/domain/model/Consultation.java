@@ -21,13 +21,13 @@ public class Consultation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "generalist_id", nullable = false)
-    private Generalist generalist;
+    private Doctor generalist;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -55,7 +55,7 @@ public class Consultation {
     @OneToMany(mappedBy = "consultation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Acte> actes = new ArrayList<>();
 
-    @OneToOne(mappedBy = "consultation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "consultation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private ExpertiseRequest expertiseRequest;
 
     @OneToMany(mappedBy = "consultation", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -125,11 +125,11 @@ public class Consultation {
         this.patient = patient;
     }
 
-    public Generalist getGeneralist() {
+    public Doctor getGeneralist() {
         return generalist;
     }
 
-    public void setGeneralist(Generalist generalist) {
+    public void setGeneralist(Doctor generalist) {
         this.generalist = generalist;
     }
 
