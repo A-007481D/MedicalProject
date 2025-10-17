@@ -27,9 +27,7 @@ public class PatientService {
         this.nurseRepository = new NurseRepositoryJpa();
     }
     
-    /**
-     * Search for patient by CIN or Social Security Number
-     */
+
     public Optional<Patient> searchPatient(String identifier) {
         if (identifier == null || identifier.trim().isEmpty()) {
             return Optional.empty();
@@ -46,10 +44,7 @@ public class PatientService {
         // Then try by SSN
         return patientRepository.findBySocialSecurityNumber(identifier);
     }
-    
-    /**
-     * Register a new patient with all information
-     */
+
     public Patient registerNewPatient(
             String cin,
             String firstName,
@@ -65,7 +60,6 @@ public class PatientService {
             String currentTreatments,
             Long nurseId) {
         
-        // Validate required fields
         if (cin == null || cin.trim().isEmpty()) {
             throw new BusinessRuleException("CIN is required");
         }
@@ -87,11 +81,9 @@ public class PatientService {
             }
         }
         
-        // Get the nurse
         Nurse nurse = nurseRepository.findById(nurseId)
                 .orElseThrow(() -> new BusinessRuleException("Nurse not found"));
         
-        // Create patient
         Patient patient = new Patient();
         patient.setCin(cin.trim());
         patient.setFirstName(firstName.trim());
@@ -110,10 +102,7 @@ public class PatientService {
         
         return patientRepository.save(patient);
     }
-    
-    /**
-     * Add vital signs to a patient
-     */
+
     public VitalSign addVitalSigns(
             Long patientId,
             Double temperature,
@@ -143,10 +132,7 @@ public class PatientService {
         
         return vitalSignRepository.save(vitalSign);
     }
-    
-    /**
-     * Get all patients registered today, sorted by arrival time
-     */
+
     public List<Patient> getTodayPatients() {
         LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1);
@@ -157,18 +143,12 @@ public class PatientService {
                 .sorted((p1, p2) -> p1.getRegisteredAt().compareTo(p2.getRegisteredAt()))
                 .collect(Collectors.toList());
     }
-    
-    /**
-     * Get patient by ID
-     */
+
     public Patient getPatientById(Long id) {
         return patientRepository.findById(id)
                 .orElseThrow(() -> new BusinessRuleException("Patient not found"));
     }
-    
-    /**
-     * Get all patients
-     */
+
     public List<Patient> getAllPatients() {
         return patientRepository.findAll();
     }

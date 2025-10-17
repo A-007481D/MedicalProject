@@ -100,4 +100,22 @@ public class ConsultationRepositoryJpa implements ConsultationRepository {
                 .getResultStream()
                 .findFirst();
     }
+    
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List<Consultation> findExpertiseRequestsBySpecialist(Long specialistId) {
+        EntityGraph<Consultation> graph = entityManager.createEntityGraph(Consultation.class);
+        graph.addAttributeNodes("expertiseRequest", "patient", "generalist");
+        graph.addSubgraph("expertiseRequest").addAttributeNodes("specialistAssigned");
+
+        return entityManager.createQuery(
+                        "SELECT DISTINCT c FROM Consultation c " +
+                        "JOIN FETCH c.expertiseRequest er " +
+                        "WHERE er.specialistAssigned.id = :specialistId " +
+                        "ORDER BY er.createdAt DESC",
+                        Consultation.class)
+                .setParameter("specialistId", specialistId)
+                .setHint("jakarta.persistence.fetchgraph", graph)
+                .getResultList();
+    }
 }
