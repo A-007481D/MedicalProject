@@ -173,8 +173,9 @@
                                             </div>
                                         </td>
                                         <td>
+                                        <td>
                                             <c:if test="${not empty consultation.createdAt}">
-                                                <fmt:formatDate value="${consultation.createdAt}" pattern="HH:mm" />
+                                                ${consultation.createdAt.toString().substring(11, 16)}
                                             </c:if>
                                         </td>
                                         <td>${consultation.motif}</td>

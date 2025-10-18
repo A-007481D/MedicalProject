@@ -217,7 +217,7 @@
                             <c:forEach var="consultation" items="${consultations}">
                                 <tr>
                                     <td>
-                                        <fmt:formatDate value="${consultation.createdAt}" pattern="dd/MM/yyyy HH:mm" type="both"/>
+                                        <fmt:formatDate value="${consultation.createdAtAsDate}" pattern="dd/MM/yyyy HH:mm" type="both"/>
                                     </td>
                                     <td>
                                         <strong>${consultation.patient.firstName} ${consultation.patient.lastName}</strong>
