@@ -31,9 +31,13 @@ public class ExpertiseRequestServlet extends HttpServlet {
     
     @Override
     public void init() {
-        EntityManagerFactory emf = (EntityManagerFactory) getServletContext().getAttribute("emf");
-        this.doctorService = new DoctorService(emf);
-        this.consultationService = new ConsultationService();
+        try {
+            EntityManagerFactory emf = jakarta.persistence.Persistence.createEntityManagerFactory("MedicalPU");
+            this.doctorService = new DoctorService(emf);
+            this.consultationService = new ConsultationService();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize EntityManagerFactory", e);
+        }
     }
     
     @Override

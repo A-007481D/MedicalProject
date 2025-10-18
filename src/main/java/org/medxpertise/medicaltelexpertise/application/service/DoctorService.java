@@ -20,7 +20,10 @@ public class DoctorService {
     public List<Doctor> findSpecialistsBySpecialty(Specialty specialty) {
         EntityManager em = emf.createEntityManager();
         try {
-            String jpql = "SELECT d FROM Doctor d WHERE d.specialty = :specialty AND d.doctorType = :doctorType";
+            String jpql = "SELECT d FROM Doctor d " +
+                         "WHERE d.specialty = :specialty " +
+                         "AND d.doctorType = :doctorType " +
+                         "AND TYPE(d) = Doctor";
             
             TypedQuery<Doctor> query = em.createQuery(jpql, Doctor.class)
                 .setParameter("specialty", specialty)
