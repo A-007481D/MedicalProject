@@ -197,7 +197,7 @@ public class ConsultationService {
                             "SELECT DISTINCT c FROM Consultation c " +
                                     "JOIN FETCH c.expertiseRequest er " +
                                     "WHERE er.specialistAssigned.id = :specialistId " +
-                                    "ORDER BY er.createdAt DESC",
+                                    "ORDER BY er.requestedAt DESC",
                             Consultation.class)
                     .setParameter("specialistId", specialistId)
                     .getResultList();

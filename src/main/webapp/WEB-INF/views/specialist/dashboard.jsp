@@ -29,8 +29,18 @@
     <div class="container-fluid">
         <h1 class="text-white fs-4 fw-semibold">Medical TeleXpertise - Médecin Spécialiste</h1>
         <div class="d-flex align-items-center gap-3">
-            <span class="text-white">Dr. ${sessionScope.user.firstName} ${sessionScope.user.lastName}</span>
-            <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-light">Déconnexion</a>
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle me-1"></i> Dr. ${sessionScope.user.firstName} ${sessionScope.user.lastName}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/specialist/profile">
+                        <i class="bi bi-person-lines-fill me-2"></i>Mon Profil</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/logout">
+                        <i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>

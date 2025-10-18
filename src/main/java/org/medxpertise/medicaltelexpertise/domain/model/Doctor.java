@@ -8,7 +8,8 @@ import org.medxpertise.medicaltelexpertise.domain.model.enums.Specialty;
 
 @Entity
 @DiscriminatorValue("DOCTOR")
-public class Doctor extends User {
+@PrimaryKeyJoinColumn(name = "id")
+public class Doctor extends BaseUser {
 
     @Size(max = 20)
     private String phone;

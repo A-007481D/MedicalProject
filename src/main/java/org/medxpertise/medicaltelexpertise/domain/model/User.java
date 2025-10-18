@@ -14,7 +14,8 @@ import java.util.List;
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING, length = 20)
-public abstract class User {
+@DiscriminatorValue("USER")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -60,7 +61,11 @@ public abstract class User {
     private List<Report> uploadedReports = new ArrayList<>();
 
 
-    protected User() {}
+    public User() {
+        this.active = true;
+        this.createdAt = LocalDateTime.now();
+        this.role = Role.BASE;
+    }
 
     protected User(String username, String firstName, String lastName, String passwordHash, String email, Role role) {
         this.username = username;

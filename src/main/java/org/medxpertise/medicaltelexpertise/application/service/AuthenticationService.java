@@ -31,7 +31,7 @@ public class AuthenticationService {
 
         String hashed = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
 
-        BaseUser newUser = new BaseUser();
+        User newUser = new User();
         newUser.setUsername(username);
         newUser.setFirstName(firstName);
         newUser.setLastName(lastName);
