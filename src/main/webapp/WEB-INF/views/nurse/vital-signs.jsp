@@ -246,7 +246,7 @@
                             <span class="vital-icon">🩸</span>
                             Blood Pressure <span class="required">*</span>
                         </label>
-                        <input type="text" id="bloodPressure" name="bloodPressure" 
+                        <input type="text" id="bloodPressure" name="bloodPressure"
                                required pattern="[0-9]{2,3}/[0-9]{2,3}"
                                placeholder="120/80">
                         <div class="help-text">Format: Systolic/Diastolic (e.g., 120/80)</div>

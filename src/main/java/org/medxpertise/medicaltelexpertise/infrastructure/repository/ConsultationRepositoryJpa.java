@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.medxpertise.medicaltelexpertise.domain.model.Consultation;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.ConsultationStatus;
 import org.medxpertise.medicaltelexpertise.domain.repository.ConsultationRepository;
+import org.medxpertise.medicaltelexpertise.infrastructure.config.JpaUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,16 +35,22 @@ public class ConsultationRepositoryJpa implements ConsultationRepository {
                 .getResultList();
     }
 
+
     @Override
     @Transactional
     public Consultation save(Consultation consultation) {
+    
+        if (entityManager == null) {
+            throw new IllegalStateException("EntityManager not available. Use servlet's EntityManager directly.");
+        }
+
         if (consultation.getId() == null) {
             entityManager.persist(consultation);
             return consultation;
+        } else {
+            return entityManager.merge(consultation);
         }
-        return entityManager.merge(consultation);
     }
-
     @Override
     @Transactional
     public void deleteById(Long id) {

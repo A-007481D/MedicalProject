@@ -40,7 +40,6 @@ public class PatientDossierServlet extends HttpServlet {
             return;
         }
 
-        // Extract patient ID from URL path
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || pathInfo.length() <= 1) {
             resp.sendRedirect(req.getContextPath() + "/dashboard/generalist");

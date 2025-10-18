@@ -35,13 +35,10 @@ public class PatientService {
         
         identifier = identifier.trim();
         
-        // Try to find by CIN first
         Optional<Patient> patient = patientRepository.findByCin(identifier);
         if (patient.isPresent()) {
             return patient;
         }
-        
-        // Then try by SSN
         return patientRepository.findBySocialSecurityNumber(identifier);
     }
 
@@ -70,7 +67,6 @@ public class PatientService {
             throw new BusinessRuleException("Last name is required");
         }
         
-        // Check if patient already exists
         if (patientRepository.findByCin(cin).isPresent()) {
             throw new BusinessRuleException("Patient with this CIN already exists");
         }
