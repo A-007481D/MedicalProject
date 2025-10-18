@@ -7,6 +7,7 @@ import org.medxpertise.medicaltelexpertise.domain.model.Doctor;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.DoctorType;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.Specialty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DoctorService {
@@ -17,19 +18,35 @@ public class DoctorService {
         this.emf = emf;
     }
 
+    @SuppressWarnings("unchecked")
     public List<Doctor> findSpecialistsBySpecialty(Specialty specialty) {
         EntityManager em = emf.createEntityManager();
         try {
-            String jpql = "SELECT d FROM Doctor d " +
-                         "WHERE d.specialty = :specialty " +
-                         "AND d.doctorType = :doctorType " +
-                         "AND TYPE(d) = Doctor";
+            String sql = "SELECT d.id, u.first_name, u.last_name, u.email, d.specialty, d.phone " +
+                       "FROM doctor d " +
+                       "JOIN users u ON d.id = u.id " +
+                       "WHERE d.specialty = ? " +
+                       "AND d.doctor_type = 'SPECIALIST' " +
+                       "AND u.role = 'SPECIALIST'";
             
-            TypedQuery<Doctor> query = em.createQuery(jpql, Doctor.class)
-                .setParameter("specialty", specialty)
-                .setParameter("doctorType", DoctorType.SPECIALIST);
-                
-            return query.getResultList();
+            List<Object[]> results = em.createNativeQuery(sql)
+                                    .setParameter(1, specialty.name())
+                                    .getResultList();
+            
+            List<Doctor> doctors = new ArrayList<>();
+            for (Object[] row : results) {
+                Doctor doctor = new Doctor();
+                doctor.setId(((Number)row[0]).longValue());
+                doctor.setFirstName((String)row[1]);
+                doctor.setLastName((String)row[2]);
+                doctor.setEmail((String)row[3]);
+                doctor.setSpecialty(Specialty.valueOf((String)row[4]));
+                doctor.setPhone((String)row[5]);
+                doctor.setDoctorType(DoctorType.SPECIALIST);
+                doctors.add(doctor);
+            }
+            
+            return doctors;
         } finally {
             em.close();
         }
