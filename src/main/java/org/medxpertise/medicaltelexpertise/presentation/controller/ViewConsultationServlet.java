@@ -48,28 +48,37 @@ public class ViewConsultationServlet extends HttpServlet {
             String idStr = pathParts[pathParts.length - 1];
             Long consultationId = Long.parseLong(idStr);
             
-            Optional<Consultation> consultationOpt = consultationService.getConsultationById(consultationId);
+            Consultation consultation = consultationService.getConsultationWithExpertise(consultationId);
             
-            if (consultationOpt.isEmpty()) {
+            if (consultation == null) {
                 resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Consultation not found");
                 return;
             }
-            
-            Consultation consultation = consultationOpt.get();
             
             if (!consultation.getGeneralist().getId().equals(user.getId())) {
                 resp.sendError(HttpServletResponse.SC_FORBIDDEN, "You are not authorized to view this consultation");
                 return;
             }
             
-    
-            Consultation consultationCopy = new Consultation(consultation);
+            if (consultation.getPatient() == null || consultation.getGeneralist() == null) {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Incomplete consultation data");
+                return;
+            }
             
-            req.setAttribute("consultation", consultationCopy);
-            req.setAttribute("patient", consultationCopy.getPatient());
-            req.setAttribute("hasExpertise", consultationCopy.getExpertiseRequest() != null);
+            req.setAttribute("consultation", consultation);
+            req.setAttribute("patient", consultation.getPatient());
+            req.setAttribute("hasExpertise", consultation.getExpertiseRequest() != null);
             
-            req.getRequestDispatcher("/WEB-INF/views/generalist/view-consultation.jsp").forward(req, resp);
+            System.out.println("Consultation status: " + consultation.getStatus());
+            System.out.println("Has expertise request: " + (consultation.getExpertiseRequest() != null));
+            
+            try {
+                req.getRequestDispatcher("/WEB-INF/views/generalist/view-consultation.jsp").forward(req, resp);
+            } catch (Exception e) {
+                System.err.println("Error forwarding to JSP: " + e.getMessage());
+                e.printStackTrace();
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error loading consultation view");
+            }
             
         } catch (NumberFormatException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid consultation ID");

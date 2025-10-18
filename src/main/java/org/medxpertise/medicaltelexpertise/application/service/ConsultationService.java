@@ -3,8 +3,10 @@ package org.medxpertise.medicaltelexpertise.application.service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import org.hibernate.Hibernate;
 import org.medxpertise.medicaltelexpertise.domain.model.Consultation;
 import org.medxpertise.medicaltelexpertise.domain.model.enums.ConsultationStatus;
+import java.util.List;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,34 +55,50 @@ public class ConsultationService {
     public Optional<Consultation> getConsultationById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            String jpql = "SELECT DISTINCT c FROM Consultation c " +
-                        "LEFT JOIN FETCH c.patient p " +
-                        "LEFT JOIN FETCH c.generalist g " +
-                        "LEFT JOIN FETCH g.profile " +
-                        "LEFT JOIN FETCH c.expertiseRequest er " +
-                        "LEFT JOIN FETCH er.specialistAssigned sa " +
-                        "LEFT JOIN FETCH sa.profile " +
-                        "WHERE c.id = :id";
-            
-            Optional<Consultation> consultationOpt = em.createQuery(jpql, Consultation.class)
-                                                   .setParameter("id", id)
-                                                   .getResultStream()
-                                                   .findFirst();
-            
-            if (consultationOpt.isPresent()) {
-                Consultation consultation = consultationOpt.get();
-                if (!emf.getPersistenceUnitUtil().isLoaded(consultation, "actes")) {
-                    consultation.getActes().size();
-                }
-                if (!emf.getPersistenceUnitUtil().isLoaded(consultation, "prescriptions")) {
-                    consultation.getPrescriptions().size();
-                }
-                return Optional.of(consultation);
-            }
-            
-            return Optional.empty();
+            return Optional.ofNullable(em.find(Consultation.class, id));
         } finally {
             em.close();
+        }
+    }
+    
+
+    public Consultation getConsultationWithExpertise(Long id) {
+        if (id == null) {
+            return null;
+        }
+        
+        EntityManager em = emf.createEntityManager();
+        try {
+            String jpql = "SELECT DISTINCT c FROM Consultation c " +
+                         "LEFT JOIN FETCH c.expertiseRequest er " +
+                         "LEFT JOIN FETCH c.patient p " +
+                         "LEFT JOIN FETCH c.generalist g " +
+                         "WHERE c.id = :id";
+            
+            List<Consultation> consultations = em.createQuery(jpql, Consultation.class)
+                                             .setParameter("id", id)
+                                             .getResultList();
+            
+            if (!consultations.isEmpty()) {
+                Consultation consultation = consultations.get(0);
+                
+                Hibernate.initialize(consultation.getExpertiseRequest());
+                
+                if (consultation.getExpertiseRequest() != null) {
+                    Hibernate.initialize(consultation.getExpertiseRequest().getSpecialistAssigned());
+                }
+                
+                return consultation;
+            }
+            
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
         }
     }
 

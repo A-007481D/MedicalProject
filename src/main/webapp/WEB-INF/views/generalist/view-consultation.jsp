@@ -315,23 +315,7 @@
                     </div>
                 </c:if>
 
-                <c:if test="${not empty consultation.diagnostic}">
-                    <div class="section">
-                        <h3 class="section-title">Diagnostic</h3>
-                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; white-space: pre-line;">
-                            ${consultation.diagnostic}
-                        </div>
-                    </div>
-                </c:if>
 
-                <c:if test="${not empty consultation.traitement}">
-                    <div class="section">
-                        <h3 class="section-title">Traitement prescrit</h3>
-                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; white-space: pre-line;">
-                            ${consultation.traitement}
-                        </div>
-                    </div>
-                </c:if>
 
                 <c:if test="${hasExpertise}">
                     <div class="expertise-section">
@@ -368,12 +352,19 @@
                 </c:if>
 
                 <div class="action-buttons">
-                    <c:if test="${consultation.status != 'COMPLETED' and empty consultation.expertiseRequest}">
+                    <!-- Debug information (can be removed later) -->
+                    <div style="display: none;">
+                        Status: ${consultation.status}<br>
+                        Has expertise: ${not empty consultation.expertiseRequest}
+                    </div>
+                    
+                    <c:if test="${consultation.status != 'COMPLETED' and consultation.status != 'WAITING_SPECIALIST_OPINION'}">
                         <a href="${pageContext.request.contextPath}/generalist/consultations/${consultation.id}/edit" class="btn btn-primary">
                             <i class="bi bi-pencil"></i> Modifier
                         </a>
-                        <c:if test="${consultation.status != 'WAITING_SPECIALIST_OPINION'}">
-                            <a href="${pageContext.request.contextPath}/generalist/consultations/${consultation.id}/request-expertise" class="btn btn-outline-secondary">
+                        
+                        <c:if test="${empty consultation.expertiseRequest}">
+                            <a href="${pageContext.request.contextPath}/expertise-request/${consultation.id}" class="btn btn-outline-secondary">
                                 <i class="bi bi-stars"></i> Demander une expertise
                             </a>
                         </c:if>
