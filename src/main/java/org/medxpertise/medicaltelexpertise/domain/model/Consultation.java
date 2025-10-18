@@ -8,7 +8,9 @@ import org.medxpertise.medicaltelexpertise.domain.model.enums.ConsultationStatus
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -62,6 +64,32 @@ public class Consultation {
     private List<Prescription> prescriptions = new ArrayList<>();
 
     public Consultation() {
+    }
+    
+
+    public Consultation(Consultation other) {
+        if (other != null) {
+            this.id = other.id;
+            this.patient = other.patient;
+            this.generalist = other.generalist;
+            this.createdAt = other.createdAt;
+            this.closedAt = other.closedAt;
+            this.status = other.status;
+            this.motif = other.motif;
+            this.observations = other.observations;
+            this.clinicalExam = other.clinicalExam;
+            this.baseCost = other.baseCost;
+            this.actes = other.actes != null ? new ArrayList<>(other.actes) : new ArrayList<>();
+            this.expertiseRequest = other.expertiseRequest;
+            this.prescriptions = other.prescriptions != null ? new ArrayList<>(other.prescriptions) : new ArrayList<>();
+        }
+    }
+    
+    
+    public Date getCreatedAtAsDate() {
+        return createdAt != null ? 
+            Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant()) : 
+            null;
     }
 
     @PrePersist

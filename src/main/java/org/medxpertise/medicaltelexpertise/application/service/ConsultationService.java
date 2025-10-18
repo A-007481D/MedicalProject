@@ -53,7 +53,32 @@ public class ConsultationService {
     public Optional<Consultation> getConsultationById(Long id) {
         EntityManager em = emf.createEntityManager();
         try {
-            return Optional.ofNullable(em.find(Consultation.class, id));
+            String jpql = "SELECT DISTINCT c FROM Consultation c " +
+                        "LEFT JOIN FETCH c.patient p " +
+                        "LEFT JOIN FETCH c.generalist g " +
+                        "LEFT JOIN FETCH g.profile " +
+                        "LEFT JOIN FETCH c.expertiseRequest er " +
+                        "LEFT JOIN FETCH er.specialistAssigned sa " +
+                        "LEFT JOIN FETCH sa.profile " +
+                        "WHERE c.id = :id";
+            
+            Optional<Consultation> consultationOpt = em.createQuery(jpql, Consultation.class)
+                                                   .setParameter("id", id)
+                                                   .getResultStream()
+                                                   .findFirst();
+            
+            if (consultationOpt.isPresent()) {
+                Consultation consultation = consultationOpt.get();
+                if (!emf.getPersistenceUnitUtil().isLoaded(consultation, "actes")) {
+                    consultation.getActes().size();
+                }
+                if (!emf.getPersistenceUnitUtil().isLoaded(consultation, "prescriptions")) {
+                    consultation.getPrescriptions().size();
+                }
+                return Optional.of(consultation);
+            }
+            
+            return Optional.empty();
         } finally {
             em.close();
         }
